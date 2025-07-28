@@ -1,1 +1,2692 @@
 
+<!DOCTYPE html>
+<html>
+<head>
+    <base target="_top">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculateur CaaS</title>
+    
+    <!-- Inclusion du CSS -->
+    <?!= include('styles'); ?>
+    
+    <!-- CSS personnalisé pour agrandir la popup -->
+    <style>
+        body {
+            margin: 0;
+            padding: 10px;
+            min-width: 1200px;
+            min-height: 800px;
+        }
+        
+        .container {
+            max-width: 1400px !important;
+            width: 100% !important;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        /* Ajuster la grille des équipements pour plus d'espace */
+        .equipment-fields {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)) !important;
+            gap: 15px;
+        }
+        
+        /* Ajuster la grille des données d'énergie */
+        .energy-data-grid {
+            display: grid;
+            grid-template-columns: 1fr 2fr !important;
+            gap: 10px;
+            max-width: none !important;
+        }
+        
+        /* Plus d'espace pour les sections */
+        .section {
+            margin-bottom: 30px;
+            padding: 25px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h2>CaaS Calculator - Project Configuration</h2>
+            <p>Fill in the information below to configure your project</p>
+        </div>
+
+        <form id="calculateurForm">
+            <!-- Le mode de calcul est toujours avancé maintenant -->
+            <input type="hidden" id="modeCalcul" name="modeCalcul" value="avance" />
+            <!-- Durée du projet fixée à 12 mois -->
+            <input type="hidden" id="dureeProjet" name="dureeProjet" value="12" />
+            
+            <!-- Section General Information -->
+            <div class="section">
+                <h3>📋 General Information</h3>
+                
+                <!-- Mode simple supprimé, uniquement mode avancé disponible -->
+
+                <!-- Section pour le calculateur personnalisé -->
+                <div id="customCalculator">
+                    <div class="form-group">
+                        <label for="nomProjet">Project Name *</label>
+                        <input type="text" id="nomProjet" name="nomProjet" required 
+                               placeholder="Ex: CRM Migration" 
+                               value="<?= donnees.nomProjet ?>">
+                    </div>
+                    
+                    <!-- Building Type -->
+                    <div class="form-group">
+                        <label for="typeBatiment">Building Type *</label>
+                        <select id="typeBatiment" name="typeBatiment" required>
+                            <option value="">-- Select --</option>
+                            <option value="Hotels" <?= donnees.typeBatiment === 'Hotels' ? 'selected' : '' ?>>Hotels</option>
+                            <option value="Airport" <?= donnees.typeBatiment === 'Airport' ? 'selected' : '' ?>>Airport</option>
+                            <option value="Hospital" <?= donnees.typeBatiment === 'Hospital' ? 'selected' : '' ?>>Hospital</option>
+                            <option value="Mall" <?= donnees.typeBatiment === 'Mall' ? 'selected' : '' ?>>Shopping Mall</option>
+                            <option value="Offices" <?= donnees.typeBatiment === 'Offices' ? 'selected' : '' ?>>Offices</option>
+                            <option value="Universities" <?= donnees.typeBatiment === 'Universities' ? 'selected' : '' ?>>Universities</option>
+                            <option value="CUSTOM" <?= donnees.typeBatiment === 'CUSTOM' ? 'selected' : '' ?>>Custom</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Hemisphere configuration -->
+                    <div class="form-group">
+                        <label for="hemisphere">Hemisphere</label>
+                        <select id="hemisphere" name="hemisphere">
+                            <option value="North" <?= donnees.hemisphere === 'North' ? 'selected' : '' ?>>North</option>
+                            <option value="South" <?= donnees.hemisphere === 'South' ? 'selected' : '' ?>>South</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Base parameters -->
+                    <div class="form-group">
+                        <label for="cddBase">CDD Base (Cooling Degree Days)</label>
+                        <select id="cddBase" name="cddBase">
+                            <option value="18" <?= donnees.cddBase === '18' || donnees.cddBase === 18 ? 'selected' : '' ?>>18</option>
+                            <option value="18.5" <?= donnees.cddBase === '18.5' || donnees.cddBase === 18.5 ? 'selected' : '' ?>>18.5</option>
+                            <option value="19" <?= donnees.cddBase === '19' || donnees.cddBase === 19 ? 'selected' : '' ?>>19</option>
+                            <option value="19.5" <?= donnees.cddBase === '19.5' || donnees.cddBase === 19.5 ? 'selected' : '' ?>>19.5</option>
+                            <option value="20" <?= donnees.cddBase === '20' || donnees.cddBase === 20 ? 'selected' : '' ?>>20</option>
+                            <option value="20.5" <?= donnees.cddBase === '20.5' || donnees.cddBase === 20.5 ? 'selected' : '' ?>>20.5</option>
+                            <option value="21" <?= donnees.cddBase === '21' || donnees.cddBase === 21 ? 'selected' : '' ?>>21</option>
+                            <option value="21.5" <?= donnees.cddBase === '21.5' || donnees.cddBase === 21.5 ? 'selected' : '' ?>>21.5</option>
+                            <option value="22" <?= donnees.cddBase === '22' || donnees.cddBase === 22 ? 'selected' : '' ?>>22</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Ajout du champ Present ΔT -->
+                    <div class="form-group">
+                        <label for="presentDeltaT">Present ΔT</label>
+                        <input type="number" id="presentDeltaT" name="presentDeltaT" min="1" max="20" step="1" 
+                              placeholder="7" value="<?= donnees.presentDeltaT || '7' ?>">
+                        <small style="color: #666; font-size: 12px;">
+                            Default value: 7
+                        </small>
+                    </div>
+
+                    <!-- Configuration traditionnelle supprimée - Type de Service et Durée du Projet non nécessaires -->
+                </div>
+            </div>
+
+            <!-- Night Reduction Section -->
+            <div class="section" id="nightReductionSection">
+                <h3>🌙 Night Reduction Configuration</h3>
+                
+                <div class="checkbox-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="nightReduction" name="nightReduction" 
+                               <?= donnees.nightReduction ? 'checked' : '' ?>>
+                        <span class="checkmark"></span>
+                        Enable night reduction
+                    </label>
+                </div>
+                
+                <div id="nightReductionParams" class="night-reduction-params">
+                    <div class="night-config-grid">
+                        <div class="night-config-header"></div>
+                        <div class="night-config-header">Weekday</div>
+                        <div class="night-config-header">Friday</div>
+                        <div class="night-config-header">Weekend</div>
+                        
+                        <div class="night-config-label">Start Time</div>
+                        <div>
+                            <select id="startTimeWeekday" name="startTimeWeekday" class="time-select">
+                                <? for (var i = 16; i <= 23; i++) { ?>
+                                    <option value="<?= i ?>" <?= donnees.startTimeWeekday == i ? 'selected' : '' ?>><?= i ?>:00</option>
+                                <? } ?>
+                            </select>
+                        </div>
+                        <div>
+                            <select id="startTimeFriday" name="startTimeFriday" class="time-select">
+                                <? for (var i = 16; i <= 23; i++) { ?>
+                                    <option value="<?= i ?>" <?= donnees.startTimeFriday == i ? 'selected' : '' ?>><?= i ?>:00</option>
+                                <? } ?>
+                            </select>
+                        </div>
+                        <div>
+                            <select id="startTimeWeekend" name="startTimeWeekend" class="time-select">
+                                <? for (var i = 16; i <= 23; i++) { ?>
+                                    <option value="<?= i ?>" <?= donnees.startTimeWeekend == i ? 'selected' : '' ?>><?= i ?>:00</option>
+                                <? } ?>
+                            </select>
+                        </div>
+                        
+                        <div class="night-config-label">End Time</div>
+                        <div>
+                            <select id="endTimeWeekday" name="endTimeWeekday" class="time-select">
+                                <? for (var i = 4; i <= 12; i++) { ?>
+                                    <option value="<?= i ?>" <?= donnees.endTimeWeekday == i ? 'selected' : '' ?>><?= i ?>:00</option>
+                                <? } ?>
+                            </select>
+                        </div>
+                        <div>
+                            <select id="endTimeFriday" name="endTimeFriday" class="time-select">
+                                <? for (var i = 4; i <= 12; i++) { ?>
+                                    <option value="<?= i ?>" <?= donnees.endTimeFriday == i ? 'selected' : '' ?>><?= i ?>:00</option>
+                                <? } ?>
+                            </select>
+                        </div>
+                        <div>
+                            <select id="endTimeWeekend" name="endTimeWeekend" class="time-select">
+                                <? for (var i = 4; i <= 12; i++) { ?>
+                                    <option value="<?= i ?>" <?= donnees.endTimeWeekend == i ? 'selected' : '' ?>><?= i ?>:00</option>
+                                <? } ?>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="nightDeltaT">Night temperature difference (ΔT)</label>
+                        <input type="number" id="nightDeltaT" name="nightDeltaT" min="1" max="15" step="1" 
+                              placeholder="8" value="<?= donnees.nightDeltaT || '8' ?>">
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Energy Data Section -->
+            <div class="section" id="energyDataSection">
+                <h3>⚡ Energy Data</h3>
+                <p class="energy-description">The following data will be used for the 12 months of the project.</p>
+                
+                <div class="energy-data-grid" id="energyDataGrid">
+                    <div class="energy-header">Date (MM-YYYY)</div>
+                    <div class="energy-header">Electricity (kWhe)</div>
+                    
+                    <!-- Les lignes de données d'énergie seront générées dynamiquement par JavaScript -->
+                    <div class="energy-row" data-month="1">
+                        <input type="month" id="date_01" name="date_01" 
+                               value="<?= convertirEnFormatMois(donnees.date_01) || '2023-01' ?>">
+                    </div>
+                    <div class="energy-slider-container" data-month="1">
+                        <input type="range" id="electricity_slider_01" min="0" max="2000000" step="1000" 
+                               value="<?= convertirEnNombre(donnees.electricity_01) || '1102480' ?>">
+                        <input type="text" id="electricity_01" name="electricity_01" class="energy-value-input" 
+                               value="<?= donnees.electricity_01 || '1,102,480' ?>">
+                    </div>
+                    <!-- Les autres lignes seront ajoutées dynamiquement en JavaScript -->
+                </div>
+            </div>
+
+            <!-- Weather Data Section -->
+            <div class="section" id="weatherSection">
+                <h3>🌤️ What are you looking for?</h3>
+                
+                <div class="checkbox-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="includeWeatherData" name="includeWeatherData" 
+                               <?= donnees.includeWeatherData ? 'checked' : '' ?>>
+                        <span class="checkmark"></span>
+                        Include weather data in calculation
+                    </label>
+                </div>
+                
+                <div id="weatherParams" class="weather-params-container" style="display: none;">
+                    <!-- Zone géographique avec carte Google Maps -->
+                    <div class="weather-location-section">
+                        <h4>📍 Where?</h4>
+                        
+                        <!-- Zone de recherche d'adresse -->
+                        <div class="address-search-container">
+                            <label for="locationAddress">Address</label>
+                            <input type="text" id="locationAddress" name="locationAddress" 
+                                   placeholder="Enter a place here (e.g., Hong Kong International Airport, Chek Lap Kok)" 
+                                   value="<?= donnees.locationAddress || '' ?>"
+                                   class="address-input" autocomplete="off">
+                            <div id="addressSuggestions" class="address-suggestions"></div>
+                            
+                            <!-- Champs cachés pour compatibilité -->
+                            <input type="hidden" id="locationName" name="locationName" value="<?= donnees.locationName || '' ?>">
+                            <input type="hidden" id="geocode" name="geocode" value="<?= donnees.geocode || '' ?>">
+                        </div>
+                        
+                        <!-- Coordonnées GPS et mini-carte côte à côte -->
+                        <div class="location-main-container">
+                            <!-- Coordonnées GPS -->
+                            <div class="coordinates-panel" style="width: 100%;">
+                                <div class="coordinates-container">
+                                    <div class="coordinate-field">
+                                        <label for="latitude">Latitude</label>
+                                        <input type="number" id="latitude" name="latitude" 
+                                               step="0.0000001" placeholder="Latitude" 
+                                               value="<?= donnees.latitude || '48.8566' ?>"
+                                               class="coordinate-input">
+                                        <!-- Champs cachés nécessaires pour l'API Veolia -->
+                                        <input type="hidden" id="locationName" name="locationName" value="<?= donnees.locationName || '' ?>">
+                                        <input type="hidden" id="geocode" name="geocode" value="<?= donnees.geocode || '' ?>">
+                                    </div>
+                                    <div class="coordinate-field">
+                                        <label for="longitude">Longitude</label>
+                                        <input type="number" id="longitude" name="longitude" 
+                                               step="0.0000001" placeholder="Longitude" 
+                                               value="<?= donnees.longitude || '2.3522' ?>"
+                                               class="coordinate-input">
+                                    </div>
+                                    <button type="button" id="updateLocationBtn" class="coordinate-refresh-btn" title="Update coordinates from address">
+                                        🔄
+                                    </button>
+                                </div>
+                                
+                                <!-- Informations supplémentaires -->
+                                <div class="location-info">
+                                    <p class="location-precision">
+                                        <strong>🎯 Precision:</strong> The coordinates will be used to fetch weather data for your location.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Interface principale des données météo - Masquée par défaut -->
+                    <div class="weather-main-interface" id="weatherMainInterface" style="display: none;">
+                        <!-- Plage de dates pour les données météo -->
+                        <div class="weather-date-range-section" id="historyDateRange">
+                            <h4>📅 What date range? <span class="date-limit">(max 1 year)</span></h4>
+                            <div class="date-range-container">
+                                <div class="date-field">
+                                    <label for="weatherStartDate">Start date</label>
+                                    <input type="date" id="weatherStartDate" name="weatherStartDate" 
+                                           value="<?= donnees.weatherStartDate || '' ?>"
+                                           class="styled-date-input">
+                                </div>
+                                <div class="date-separator">→</div>
+                                <div class="date-field">
+                                    <label for="weatherEndDate">End date</label>
+                                    <input type="date" id="weatherEndDate" name="weatherEndDate" 
+                                           value="<?= donnees.weatherEndDate || '' ?>"
+                                           class="styled-date-input">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Source des données météo -->
+                        <div class="weather-source-section">
+                            <h4>☁️ Which weather data source?</h4>
+                            <div class="source-options">
+                                <label class="source-option selected">
+                                    <input type="radio" name="weatherDataSource" value="cfsr" checked>
+                                    <span class="source-icon">🌐</span>
+                                    <div class="source-content">
+                                        <strong>Closest virtual grid point (CFSR method)</strong>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <!-- Informations météo récupérées -->
+                        <div class="weather-info-display" id="weatherInfo" style="display: none;">
+                            <h4>Weather Data Information</h4>
+                            <div class="info-grid">
+                                <div class="info-card">
+                                    <span class="info-label">Status</span>
+                                    <span class="info-value" id="weatherStatus">--</span>
+                                </div>
+                                <div class="info-card">
+                                    <span class="info-label">Data available</span>
+                                    <span class="info-value" id="weatherDataAvailable">--</span>
+                                </div>
+                                <div class="info-card">
+                                    <span class="info-label">Source</span>
+                                    <span class="info-value" id="weatherSource">--</span>
+                                </div>
+                                <div class="info-card">
+                                    <span class="info-label">Location</span>
+                                    <span class="info-value" id="weatherLocation">--</span>
+                                </div>
+                            </div>
+                            <div class="weather-recommendations" id="weatherRecommendations"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Interface principale des données météo - Masquée par défaut -->
+                <div class="weather-main-interface" id="weatherMainInterface" style="display: none;">
+                        <!-- Type de données -->
+                                center: { lat: defaultLat, lng: defaultLng },
+                                mapTypeControl: true,
+                                mapTypeControlOptions: {
+                                    style: google.maps.MapTypeControlStyle.HORIZONTAL_BAR,
+                                    position: google.maps.ControlPosition.TOP_CENTER,
+                                },
+                                streetViewControl: false,
+                                fullscreenControl: false
+                            };
+                            
+                            // Créer la carte
+                            map = new google.maps.Map(mapElement, mapOptions);
+                            
+                            // Créer le marqueur
+                            marker = new google.maps.Marker({
+                                position: { lat: defaultLat, lng: defaultLng },
+                                map: map,
+                                draggable: true,
+                                title: 'Weather location'
+                            });
+                            
+                            // Initialiser le géocodeur
+                            geocoder = new google.maps.Geocoder();
+                            
+                            // Cacher le placeholder
+                            if (mapPlaceholder) {
+                                mapPlaceholder.style.display = 'none';
+                            }
+                            
+                            // Event listeners
+                            setupMapEventListeners();
+                            
+                            isMapLoaded = true;
+                            console.log('Google Maps initialisé avec succès');
+                        }
+                    }
+                    
+                    // Fonction pour configurer les event listeners de la carte
+                    function setupMapEventListeners() {
+                        // Clic sur la carte
+                        map.addListener('click', function(event) {
+                            updateLocationFromMap(event.latLng);
+                        });
+                        
+                        // Déplacement du marqueur
+                        marker.addListener('dragend', function(event) {
+                            updateLocationFromMap(event.latLng);
+                        });
+                    }
+                    
+                    // Fonction pour mettre à jour la localisation depuis la carte
+                    function updateLocationFromMap(latLng) {
+                        const lat = latLng.lat();
+                        const lng = latLng.lng();
+                        
+                        // Mettre à jour les champs
+                        document.getElementById('latitude').value = lat.toFixed(7);
+                        document.getElementById('longitude').value = lng.toFixed(7);
+                        
+                        // Déplacer le marqueur
+                        marker.setPosition(latLng);
+                        
+                        // Géocodage inverse pour obtenir l'adresse
+                        if (geocoder) {
+                            geocoder.geocode({ location: latLng }, function(results, status) {
+                                if (status === 'OK' && results[0]) {
+                                    document.getElementById('locationAddress').value = results[0].formatted_address;
+                                }
+                            });
+                    <!-- Interface principale des données météo - Masquée par défaut -->
+                    <div class="weather-main-interface" id="weatherMainInterface" style="display: none;">
+                    <div class="weather-main-interface">
+                        <!-- Type de données -->
+                        <div class="weather-data-type-section">
+                            <h4>What kind of data?</h4>
+                            <div class="data-type-tabs">
+                                <label class="data-type-tab active">
+                                    <input type="radio" name="weatherDataType" value="history" checked>
+                                    <span class="tab-content">Weather Data</span>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <!-- Intervalle temporel -->
+                        <div class="weather-interval-section">
+                            <h4>⏱️ What time interval?</h4>
+                            <div class="interval-options">
+                            </div>
+                        </div>
+                        
+                        <!-- Plage de dates pour les données météo -->
+                        <div class="weather-date-range-section" id="historyDateRange">
+                            <h4>📅 What date range? <span class="date-limit">(max 1 year)</span></h4>
+                            <div class="date-range-container">
+                                <div class="date-field">
+                                    <label for="weatherStartDate">Start date</label>
+                                    <input type="date" id="weatherStartDate" name="weatherStartDate" 
+                                           value="<?= donnees.weatherStartDate || '' ?>"
+                                           class="styled-date-input">
+                                </div>
+                                <div class="date-separator">→</div>
+                                <div class="date-field">
+                                    <label for="weatherEndDate">End date</label>
+                                    <input type="date" id="weatherEndDate" name="weatherEndDate" 
+                                           value="<?= donnees.weatherEndDate || '' ?>"
+                                           class="styled-date-input">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Source des données météo -->
+                        <div class="weather-source-section">
+                            <h4>☁️ Which weather data source?</h4>
+                            <div class="source-options">
+                                <label class="source-option selected">
+                                    <input type="radio" name="weatherDataSource" value="cfsr" checked>
+                                    <span class="source-icon">🌐</span>
+                                    <div class="source-content">
+                                        <strong>Closest virtual grid point (CFSR method)</strong>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <!-- Informations météo récupérées -->
+                        <div class="weather-info-display" id="weatherInfo" style="display: none;">
+                            <h4>Weather Data Information</h4>
+                            <div class="info-grid">
+                                <div class="info-card">
+                                    <span class="info-label">Status</span>
+                                    <span class="info-value" id="weatherStatus">--</span>
+                                </div>
+                                <div class="info-card">
+                                    <span class="info-label">Data available</span>
+                                    <span class="info-value" id="weatherDataAvailable">--</span>
+                                </div>
+                                <div class="info-card">
+                                    <span class="info-label">Source</span>
+                                    <span class="info-value" id="weatherSource">--</span>
+                                </div>
+                                <div class="info-card">
+                                    <span class="info-label">Location</span>
+                                    <span class="info-value" id="weatherLocation">--</span>
+                                </div>
+                            </div>
+                            <div class="weather-recommendations" id="weatherRecommendations"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Equipment Section -->
+            <div class="section" id="equipmentSection">
+                <h3>⚙️ Equipment</h3>
+                
+                <div class="equipment-section">
+                    <!-- CHILLERS -->
+                    <div class="equipment-group">
+                        <h4>CHILLERS</h4>
+                        <div class="equipment-fields">
+                            <div class="equipment-field">
+                                <label for="chillers_units">Units</label>
+                                <input type="text" id="chillers_units" name="chillers_units" 
+                                       placeholder="Ex: 2" 
+                                       value="<?= donnees.chillers_units || '' ?>">
+                            </div>
+                            
+                            <!-- Option pour configuration individuelle des chillers -->
+                            <div class="equipment-field" style="grid-column: span 2;">
+                                <div class="checkbox-group">
+                                    <label class="checkbox-label">
+                                        <input type="checkbox" id="individual_chillers" name="individual_chillers" 
+                                               <?= donnees.individual_chillers ? 'checked' : '' ?>>
+                                        <span class="checkmark"></span>
+                                        Configure individual chillers (Load & COP for each)
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <!-- Configuration globale (par défaut) -->
+                            <div id="global_chiller_config" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px;">
+                                <div class="equipment-field">
+                                    <label for="chillers_load">Load (kWc)</label>
+                                    <input type="text" id="chillers_load" name="chillers_load" 
+                                           placeholder="Ex: 1200" 
+                                           value="<?= donnees.chillers_load || '' ?>">
+                                </div>
+                                <div class="equipment-field">
+                                    <label for="chillers_min_load">Min Load (kWc)</label>
+                                    <input type="text" id="chillers_min_load" name="chillers_min_load" 
+                                           placeholder="Ex: 300" 
+                                           value="<?= donnees.chillers_min_load || '' ?>">
+                                </div>
+                                <div class="equipment-field">
+                                    <label for="chillers_cop">COP</label>
+                                    <input type="text" id="chillers_cop" name="chillers_cop" 
+                                           placeholder="Ex: 4,5" 
+                                           value="<?= donnees.chillers_cop || '' ?>">
+                                </div>
+                            </div>
+                            
+                            <!-- Configuration individuelle des chillers (jusqu'à 5) -->
+                            <div id="individual_chiller_config" style="display: none; grid-column: span 4;">
+                                <div id="chiller_container" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; margin-top: 15px;">
+                                    <!-- Chiller 1 -->
+                                    <div class="chiller-unit" data-chiller="1" style="border: 1px solid #e2e8f0; padding: 15px; border-radius: 8px;">
+                                        <h5 style="margin-bottom: 10px; color: #2c3e50;">Chiller 1</h5>
+                                        <div class="equipment-field">
+                                            <label for="chiller_1_load">Load 1 (kWc)</label>
+                                            <input type="text" id="chiller_1_load" name="chiller_1_load" 
+                                                   placeholder="Ex: 1200" 
+                                                   value="<?= donnees.chiller_1_load || '' ?>">
+                                        </div>
+                                        <div class="equipment-field">
+                                            <label for="chiller_1_cop">COP 1</label>
+                                            <input type="text" id="chiller_1_cop" name="chiller_1_cop" 
+                                                   placeholder="Ex: 4,5" 
+                                                   value="<?= donnees.chiller_1_cop || '' ?>">
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Chiller 2 -->
+                                    <div class="chiller-unit" data-chiller="2" style="border: 1px solid #e2e8f0; padding: 15px; border-radius: 8px;">
+                                        <h5 style="margin-bottom: 10px; color: #2c3e50;">Chiller 2</h5>
+                                        <div class="equipment-field">
+                                            <label for="chiller_2_load">Load 2 (kWc)</label>
+                                            <input type="text" id="chiller_2_load" name="chiller_2_load" 
+                                                   placeholder="Ex: 1200" 
+                                                   value="<?= donnees.chiller_2_load || '' ?>">
+                                        </div>
+                                        <div class="equipment-field">
+                                            <label for="chiller_2_cop">COP 2</label>
+                                            <input type="text" id="chiller_2_cop" name="chiller_2_cop" 
+                                                   placeholder="Ex: 4,5" 
+                                                   value="<?= donnees.chiller_2_cop || '' ?>">
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Chiller 3 -->
+                                    <div class="chiller-unit" data-chiller="3" style="border: 1px solid #e2e8f0; padding: 15px; border-radius: 8px;">
+                                        <h5 style="margin-bottom: 10px; color: #2c3e50;">Chiller 3</h5>
+                                        <div class="equipment-field">
+                                            <label for="chiller_3_load">Load 3 (kWc)</label>
+                                            <input type="text" id="chiller_3_load" name="chiller_3_load" 
+                                                   placeholder="Ex: 1200" 
+                                                   value="<?= donnees.chiller_3_load || '' ?>">
+                                        </div>
+                                        <div class="equipment-field">
+                                            <label for="chiller_3_cop">COP 3</label>
+                                            <input type="text" id="chiller_3_cop" name="chiller_3_cop" 
+                                                   placeholder="Ex: 4,5" 
+                                                   value="<?= donnees.chiller_3_cop || '' ?>">
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Chiller 4 -->
+                                    <div class="chiller-unit" data-chiller="4" style="border: 1px solid #e2e8f0; padding: 15px; border-radius: 8px; display: none;">
+                                        <h5 style="margin-bottom: 10px; color: #2c3e50;">Chiller 4</h5>
+                                        <div class="equipment-field">
+                                            <label for="chiller_4_load">Load 4 (kWc)</label>
+                                            <input type="text" id="chiller_4_load" name="chiller_4_load" 
+                                                   placeholder="Ex: 1200" 
+                                                   value="<?= donnees.chiller_4_load || '' ?>">
+                                        </div>
+                                        <div class="equipment-field">
+                                            <label for="chiller_4_cop">COP 4</label>
+                                            <input type="text" id="chiller_4_cop" name="chiller_4_cop" 
+                                                   placeholder="Ex: 4,5" 
+                                                   value="<?= donnees.chiller_4_cop || '' ?>">
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Chiller 5 -->
+                                    <div class="chiller-unit" data-chiller="5" style="border: 1px solid #e2e8f0; padding: 15px; border-radius: 8px; display: none;">
+                                        <h5 style="margin-bottom: 10px; color: #2c3e50;">Chiller 5</h5>
+                                        <div class="equipment-field">
+                                            <label for="chiller_5_load">Load 5 (kWc)</label>
+                                            <input type="text" id="chiller_5_load" name="chiller_5_load" 
+                                                   placeholder="Ex: 1200" 
+                                                   value="<?= donnees.chiller_5_load || '' ?>">
+                                        </div>
+                                        <div class="equipment-field">
+                                            <label for="chiller_5_cop">COP 5</label>
+                                            <input type="text" id="chiller_5_cop" name="chiller_5_cop" 
+                                                   placeholder="Ex: 4,5" 
+                                                   value="<?= donnees.chiller_5_cop || '' ?>">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- PRIM PUMPS -->
+                    <div class="equipment-group">
+                        <h4>PRIM PUMPS</h4>
+                        <div class="equipment-fields">
+                            <div class="equipment-field">
+                                <label for="prim_pumps_units">Units</label>
+                                <input type="text" id="prim_pumps_units" name="prim_pumps_units" 
+                                       placeholder="Ex: 2" 
+                                       value="<?= donnees.prim_pumps_units || '' ?>">
+                            </div>
+                            <div class="equipment-field">
+                                <label for="prim_pumps_flow">Flow (m³/h)</label>
+                                <input type="text" id="prim_pumps_flow" name="prim_pumps_flow" 
+                                       placeholder="Ex: 220" 
+                                       value="<?= donnees.prim_pumps_flow || '' ?>">
+                            </div>
+                            <div class="equipment-field">
+                                <label for="prim_pumps_n_flow">N Flow (m³/h)</label>
+                                <input type="text" id="prim_pumps_n_flow" name="prim_pumps_n_flow" 
+                                       placeholder="Ex: 210" 
+                                       value="<?= donnees.prim_pumps_n_flow || '' ?>">
+                            </div>
+                            <div class="equipment-field">
+                                <label for="prim_pumps_n_load">N Load (kW)</label>
+                                <input type="text" id="prim_pumps_n_load" name="prim_pumps_n_load" 
+                                       placeholder="Ex: 45" 
+                                       value="<?= donnees.prim_pumps_n_load || '' ?>">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- SEC PUMPS -->
+                    <div class="equipment-group">
+                        <h4>SEC PUMPS</h4>
+                        <div class="equipment-fields">
+                            <div class="equipment-field">
+                                <label for="sec_pumps_units">Units</label>
+                                <input type="text" id="sec_pumps_units" name="sec_pumps_units" 
+                                       placeholder="Ex: 2" 
+                                       value="<?= donnees.sec_pumps_units || '' ?>">
+                            </div>
+                            <div class="equipment-field">
+                                <label for="sec_pumps_flow">Flow (m³/h)</label>
+                                <input type="text" id="sec_pumps_flow" name="sec_pumps_flow" 
+                                       placeholder="Ex: 250" 
+                                       value="<?= donnees.sec_pumps_flow || '' ?>">
+                            </div>
+                            <div class="equipment-field">
+                                <label for="sec_pumps_n_flow">N Flow (m³/h)</label>
+                                <input type="text" id="sec_pumps_n_flow" name="sec_pumps_n_flow" 
+                                       placeholder="Ex: 240" 
+                                       value="<?= donnees.sec_pumps_n_flow || '' ?>">
+                            </div>
+                            <div class="equipment-field">
+                                <label for="sec_pumps_n_load">N Load (kW)</label>
+                                <input type="text" id="sec_pumps_n_load" name="sec_pumps_n_load" 
+                                       placeholder="Ex: 30" 
+                                       value="<?= donnees.sec_pumps_n_load || '' ?>">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- CL TOWERS -->
+                    <div class="equipment-group">
+                        <h4>CL TOWERS</h4>
+                        <div class="equipment-fields">
+                            <div class="equipment-field">
+                                <label for="cl_towers_units">Units</label>
+                                <input type="text" id="cl_towers_units" name="cl_towers_units" 
+                                       placeholder="Ex: 2" 
+                                       value="<?= donnees.cl_towers_units || '' ?>">
+                            </div>
+                            <div class="equipment-field">
+                                <label for="cl_towers_flow">Flow (m³/h)</label>
+                                <input type="text" id="cl_towers_flow" name="cl_towers_flow" 
+                                       placeholder="Ex: 275" 
+                                       value="<?= donnees.cl_towers_flow || '' ?>">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Les sections Utilisateurs et Services Additionnels ont été supprimées car non nécessaires -->
+
+            <!-- Nous avons supprimé la section d'estimation des coûts car elle n'est plus nécessaire -->
+            
+            <!-- Technical Results Section -->
+            <div class="section" id="resultatsSection" style="display: none;">
+                <h3>Technical Results</h3>
+                
+                <div class="resultats-section">
+                    <!-- CHILLERS Results -->
+                    <div class="resultats-group">
+                        <h4>CHILLERS</h4>
+                        <div class="resultats-grid">
+                            <div class="resultat-item">
+                                <span class="resultat-label">Current electrical consumption:</span>
+                                <span class="resultat-value" id="chillers_current_consumption">--</span>
+                                <span class="resultat-unit">kWhe</span>
+                            </div>
+                            <div class="resultat-item">
+                                <span class="resultat-label">New electrical consumption:</span>
+                                <span class="resultat-value" id="chillers_new_consumption">--</span>
+                                <span class="resultat-unit">kWhe</span>
+                            </div>
+                            <div class="resultat-item">
+                                <span class="resultat-label">Savings:</span>
+                                <span class="resultat-value savings" id="chillers_savings">--</span>
+                                <span class="resultat-unit">kWhe</span>
+                            </div>
+                            <div class="resultat-item">
+                                <span class="resultat-label">Chiller 1 - Startups / Runtime:</span>
+                                <span class="resultat-value" id="chiller1_startups_runtime">--</span>
+                            </div>
+                            <div class="resultat-item">
+                                <span class="resultat-label">Chiller 2 - Startups / Runtime:</span>
+                                <span class="resultat-value" id="chiller2_startups_runtime">--</span>
+                            </div>
+                            <div class="resultat-item">
+                                <span class="resultat-label">Chiller 3 - Startups / Runtime:</span>
+                                <span class="resultat-value" id="chiller3_startups_runtime">--</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- SEC PUMPS Results -->
+                    <div class="resultats-group">
+                        <h4>SEC PUMPS</h4>
+                        <div class="resultats-grid">
+                            <div class="resultat-item">
+                                <span class="resultat-label">Current electrical consumption:</span>
+                                <span class="resultat-value" id="sec_pumps_current_consumption">--</span>
+                                <span class="resultat-unit">kWhe</span>
+                            </div>
+                            <div class="resultat-item">
+                                <span class="resultat-label">New electrical consumption:</span>
+                                <span class="resultat-value" id="sec_pumps_new_consumption">--</span>
+                                <span class="resultat-unit">kWhe</span>
+                            </div>
+                            <div class="resultat-item">
+                                <span class="resultat-label">Savings:</span>
+                                <span class="resultat-value savings" id="sec_pumps_savings">--</span>
+                                <span class="resultat-unit">kWhe</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- TOTAL Results -->
+                    <div class="resultats-group total">
+                        <h4>TOTAL</h4>
+                        <div class="resultats-grid">
+                            <div class="resultat-item">
+                                <span class="resultat-label">Total savings:</span>
+                                <span class="resultat-value savings total" id="total_savings">--</span>
+                                <span class="resultat-unit">kWhe</span>
+                            </div>
+                            <div class="resultat-item">
+                                <span class="resultat-label">% of current cooling consumption:</span>
+                                <span class="resultat-value percent" id="total_percent_cooling">--</span>
+                                <span class="resultat-unit">%</span>
+                            </div>
+                            <div class="resultat-item">
+                                <span class="resultat-label">% of current total consumption:</span>
+                                <span class="resultat-value percent" id="total_percent_cspt">--</span>
+                                <span class="resultat-unit">%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Loading overlay -->
+            <div id="loadingOverlay" class="loading-overlay" style="display: none;">
+                <div class="loading-content">
+                    <div class="spinner"></div>
+                    <div class="loading-text">Calculating...</div>
+                    <div class="loading-progress-container">
+                        <div class="loading-progress-bar" id="loadingProgressBar"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action buttons -->
+            <div class="button-group">
+                <button type="submit" class="btn btn-primary">
+                    💾 Save to Spreadsheet
+                </button>
+                <button type="button" class="btn btn-secondary" onclick="google.script.host.close()">
+                    ❌ Cancel
+                </button>
+            </div>
+        </form>
+
+        <!-- Zone de messages -->
+        <div id="messageZone"></div>
+    </div>
+
+    <script>
+        console.log('Script JavaScript chargé !');
+        // Définition de l'URL du site externe
+        const EXTERNAL_SITE_URL = "https://mathis428.github.io/Veolia_CaaS-online-calculator/";
+        
+        // Élément du DOM principal pour le calculateur
+        const customCalculator = document.getElementById('customCalculator');
+        
+        // Fonction d'initialisation (toujours en mode avancé)
+        function initializeCalculator() {
+            console.log('initializeCalculator appelée !');
+            // Afficher les sections
+            document.getElementById('nightReductionSection').style.display = "block";
+            document.getElementById('energyDataSection').style.display = "block";
+            document.getElementById('weatherSection').style.display = "block";
+        }
+
+        // Nous avons supprimé la fonction calculerTotalChillers car elle n'est plus nécessaire
+        
+        // Fonction pour afficher/masquer les paramètres de réduction nocturne
+        function toggleNightReductionParams() {
+            const nightReductionEnabled = document.getElementById('nightReduction').checked;
+            const nightReductionParams = document.getElementById('nightReductionParams');
+            
+            if (nightReductionEnabled) {
+                nightReductionParams.style.display = 'block';
+            } else {
+                nightReductionParams.style.display = 'none';
+            }
+        }
+        
+        // Fonction pour afficher/masquer les paramètres météo
+        function toggleWeatherParams() {
+            const weatherEnabled = document.getElementById('includeWeatherData').checked;
+            const weatherParams = document.getElementById('weatherParams');
+            const weatherMainInterface = document.getElementById('weatherMainInterface');
+            
+            if (weatherEnabled) {
+                weatherParams.style.display = 'block';
+                // Afficher l'interface principale météo seulement si les coordonnées sont remplies
+                const latitude = document.getElementById('latitude').value;
+                const longitude = document.getElementById('longitude').value;
+                if (latitude && longitude) {
+                    weatherMainInterface.style.display = 'block';
+                }
+            } else {
+                weatherParams.style.display = 'none';
+                weatherMainInterface.style.display = 'none';
+                // Cacher les informations météo
+                const weatherInfo = document.getElementById('weatherInfo');
+                if (weatherInfo) {
+                    weatherInfo.style.display = 'none';
+                }
+            }
+        }
+        
+        // Fonction pour afficher/masquer la configuration individuelle des chillers
+        function toggleChillerConfiguration() {
+            const individualChillersEnabled = document.getElementById('individual_chillers').checked;
+            const globalConfig = document.getElementById('global_chiller_config');
+            const individualConfig = document.getElementById('individual_chiller_config');
+            
+            if (individualChillersEnabled) {
+                globalConfig.style.display = 'none';
+                individualConfig.style.display = 'block';
+                updateChillerVisibility(); // Mettre à jour le nombre de chillers visibles
+            } else {
+                globalConfig.style.display = 'grid';
+                globalConfig.style.gridTemplateColumns = 'repeat(2, 1fr)';
+                globalConfig.style.gap = '15px';
+                individualConfig.style.display = 'none';
+            }
+        }
+        
+        // Fonction pour gérer le nombre de chillers visibles
+        function updateChillerVisibility() {
+            const chillerUnits = parseInt(document.getElementById('chillers_units').value) || 0;
+            const maxChillers = Math.min(Math.max(chillerUnits, 1), 5); // Entre 1 et 5
+            
+            // Afficher/masquer les chillers selon le nombre d'unités
+            for (let i = 1; i <= 5; i++) {
+                const chillerElement = document.querySelector(`.chiller-unit[data-chiller="${i}"]`);
+                if (chillerElement) {
+                    if (i <= maxChillers) {
+                        chillerElement.style.display = 'block';
+                    } else {
+                        chillerElement.style.display = 'none';
+                        // Optionnellement, vider les champs des chillers masqués
+                        const loadInput = document.getElementById(`chiller_${i}_load`);
+                        const copInput = document.getElementById(`chiller_${i}_cop`);
+                        if (loadInput) loadInput.value = '';
+                        if (copInput) copInput.value = '';
+                    }
+                }
+            }
+        }
+        
+        // Weather data functionality with improved Veolia interface
+        function setupWeatherInterface() {
+            const includeWeatherCheckbox = document.getElementById('includeWeatherData');
+            const weatherParams = document.getElementById('weatherParams');
+            const weatherDataTypes = document.querySelectorAll('input[name="weatherDataType"]');
+            const weatherDataTabs = document.querySelectorAll('.data-type-tab');
+            const sourceOptions = document.querySelectorAll('.source-option');
+            const historyDateRange = document.getElementById('historyDateRange');
+            const updateLocationBtn = document.getElementById('updateLocationBtn');
+            const mapPlaceholder = document.querySelector('.map-placeholder');
+            
+            // Supprimer toutes les sections "Weather data source" car elles sont inutiles comme demandé
+            const weatherSourceSections = document.querySelectorAll('.weather-source-section');
+            weatherSourceSections.forEach(section => {
+                if (section) {
+                    section.remove();
+                }
+            });
+            
+            // Configure autocomplete for address input
+            const addressInput = document.getElementById('locationAddress');
+            const suggestionContainer = document.getElementById('addressSuggestions');
+            
+            if (addressInput && suggestionContainer) {
+                let debounceTimer;
+                
+                // Function to fetch address suggestions using Google Apps Script backend
+                const fetchAddressSuggestions = (query) => {
+                    if (!query || query.length < 2) {
+                        suggestionContainer.style.display = 'none';
+                        suggestionContainer.innerHTML = '';
+                        return;
+                    }
+                    
+                    // Clear previous timer
+                    clearTimeout(debounceTimer);
+                    
+                    // Show loading indicator immediately
+                    suggestionContainer.innerHTML = '<div class="suggestion-item loading">🔍 Recherche en cours...</div>';
+                    suggestionContainer.style.display = 'block';
+                    
+                    // Debounce API calls with faster response
+                    debounceTimer = setTimeout(() => {
+                        google.script.run
+                            .withSuccessHandler((suggestions) => {
+                                // Clear loading
+                                suggestionContainer.innerHTML = '';
+                                
+                                if (suggestions && suggestions.length > 0) {
+                                    // Limit to top 8 suggestions pour de meilleures performances
+                                    const limitedSuggestions = suggestions.slice(0, 8);
+                                    
+                                    limitedSuggestions.forEach((suggestion, index) => {
+                                        const div = document.createElement('div');
+                                        div.className = 'suggestion-item';
+                                        
+                                        // Convert coordinates to numbers and handle potential errors
+                                        const lat = parseFloat(suggestion.lat) || 0;
+                                        const lng = parseFloat(suggestion.lng) || 0;
+                                        
+                                        // Créer les indicateurs de couverture mondiale
+                                        let coverageIndicator = '';
+                                        let distanceInfo = '';
+                                        
+                                        // Indicateur de distance de grille pour météo
+                                        if (suggestion.gridDistance !== undefined) {
+                                            if (suggestion.gridDistance <= 15) {
+                                                coverageIndicator = '🎯'; // Excellent
+                                                distanceInfo = `Grille météo: ${suggestion.gridDistance}km`;
+                                            } else if (suggestion.gridDistance <= 50) {
+                                                coverageIndicator = '📍'; // Bon
+                                                distanceInfo = `Grille météo: ${suggestion.gridDistance}km`;
+                                            } else {
+                                                coverageIndicator = '📌'; // Approximatif
+                                                distanceInfo = `Grille météo: ${suggestion.gridDistance}km`;
+                                            }
+                                        }
+                                        
+                                        // Créer l'indicateur de confiance basé sur OpenCage
+                                        let confidenceIndicator = '';
+                                        if (suggestion.confidence) {
+                                            const conf = parseInt(suggestion.confidence);
+                                            if (conf >= 9) confidenceIndicator = '🎯'; // Très précis
+                                            else if (conf >= 7) confidenceIndicator = '📍'; // Précis
+                                            else if (conf >= 5) confidenceIndicator = '📌'; // Approximatif
+                                            else confidenceIndicator = '⚠️'; // Incertain
+                                        }
+                                        
+                                        // Indicateurs de statut avec informations mondiales
+                                        let statusIcons = '';
+                                        if (suggestion.verified) statusIcons += ' ✅';
+                                        if (suggestion.weatherAvailable) statusIcons += ' 🌤️';
+                                        if (suggestion.isAlternativeGrid) statusIcons += ' 🔄';
+                                        
+                                        // Indicateur de pays/région
+                                        let locationFlag = '';
+                                        if (suggestion.countryCode) {
+                                            locationFlag = ` 🌍 ${suggestion.country || suggestion.countryCode}`;
+                                        }
+                                        
+                                        // Affichage amélioré avec couverture mondiale
+                                        div.innerHTML = `
+                                            <div class="suggestion-content">
+                                                <div class="suggestion-name">
+                                                    ${confidenceIndicator} ${suggestion.name}${statusIcons}${locationFlag}
+                                                    ${suggestion.confidence ? `<span class="confidence-score">(${suggestion.confidence}/10)</span>` : ''}
+                                                </div>
+                                                <div class="suggestion-address">${suggestion.address}</div>
+                                                <div class="suggestion-coords">
+                                                    📍 Location: ${lat.toFixed(4)}, ${lng.toFixed(4)}
+                                                    ${suggestion.weatherLat && suggestion.weatherLng ? 
+                                                        `<br>🌤️ Weather Grid: ${suggestion.weatherLat.toFixed(4)}, ${suggestion.weatherLng.toFixed(4)}` : ''}
+                                                </div>
+                                                <div class="suggestion-status">
+                                                    ${suggestion.verified ? 
+                                                        (suggestion.weatherAvailable ? 
+                                                            `✅ Verified - Weather data available ${distanceInfo ? '(' + distanceInfo + ')' : ''}` : 
+                                                            `✅ Verified - Limited weather coverage ${distanceInfo ? '(' + distanceInfo + ')' : ''}`) : 
+                                                        'OpenCage Geocoder data 🌍'}
+                                                    ${suggestion.isAlternativeGrid ? ' • Alternative weather grid point' : ''}
+                                                </div>
+                                            </div>
+                                        `;
+                                        
+                                        // Style conditionnel basé sur la confiance
+                                        if (suggestion.confidence) {
+                                            const conf = parseInt(suggestion.confidence);
+                                            if (conf >= 9) {
+                                                div.style.borderLeft = '4px solid #10b981'; // Vert
+                                            } else if (conf >= 7) {
+                                                div.style.borderLeft = '4px solid #3b82f6'; // Bleu
+                                            } else {
+                                                div.style.borderLeft = '4px solid #f59e0b'; // Orange
+                                            }
+                                        }
+                                        
+                                        // Add click handler avec données enrichies pour couverture mondiale
+                                        div.onclick = () => {
+                                            // Mise à jour des champs avec les données OpenCage mondiales
+                                            addressInput.value = suggestion.address;
+                                            suggestionContainer.style.display = 'none';
+                                            
+                                            // Set coordinates (utiliser les coordonnées réelles, pas celles de grille)
+                                            document.getElementById('latitude').value = lat.toFixed(6);
+                                            document.getElementById('longitude').value = lng.toFixed(6);
+                                            document.getElementById('locationName').value = suggestion.name;
+                                            
+                                            // Utiliser les coordonnées de grille pour l'API météo si disponibles
+                                            const weatherLat = suggestion.weatherLat || lat;
+                                            const weatherLng = suggestion.weatherLng || lng;
+                                            document.getElementById('geocode').value = `${weatherLat},${weatherLng}`;
+                                            
+                                            // Stocker les métadonnées mondiales OpenCage
+                                            if (suggestion.city) {
+                                                const cityField = document.getElementById('locationCity');
+                                                if (cityField) cityField.value = suggestion.city;
+                                            }
+                                            if (suggestion.country) {
+                                                const countryField = document.getElementById('locationCountry');
+                                                if (countryField) countryField.value = suggestion.country;
+                                            }
+                                            if (suggestion.state) {
+                                                const stateField = document.getElementById('locationState');
+                                                if (stateField) stateField.value = suggestion.state;
+                                            }
+                                            
+                                            // Show weather interface if needed
+                                            const weatherMainInterface = document.getElementById('weatherMainInterface');
+                                            if (includeWeatherCheckbox && includeWeatherCheckbox.checked) {
+                                                weatherMainInterface.style.display = 'block';
+                                                
+                                                // Notification adaptée à la couverture mondiale
+                                                if (suggestion.weatherAvailable) {
+                                                    const gridInfo = suggestion.finalGridDistance ? 
+                                                        ` (Grid distance: ${suggestion.finalGridDistance}km)` : '';
+                                                    showNotification(
+                                                        `✅ ${suggestion.name}, ${suggestion.country} selected with Veolia weather data${gridInfo}`, 
+                                                        'success'
+                                                    );
+                                                } else {
+                                                    showNotification(
+                                                        `📍 ${suggestion.name}, ${suggestion.country} selected. Limited weather coverage for this region.`, 
+                                                        'info'
+                                                    );
+                                                }
+                                            }
+                                            
+                                            // Visual feedback amélioré basé sur la qualité
+                                            if (suggestion.weatherAvailable && suggestion.finalGridDistance <= 25) {
+                                                addressInput.style.backgroundColor = '#dcfce7'; // Vert - excellent
+                                                addressInput.style.borderColor = '#10b981';
+                                            } else if (suggestion.verified) {
+                                                addressInput.style.backgroundColor = '#dbeafe'; // Bleu - bon
+                                                addressInput.style.borderColor = '#3b82f6';
+                                            } else {
+                                                addressInput.style.backgroundColor = '#fef3c7'; // Jaune - limité
+                                                addressInput.style.borderColor = '#f59e0b';
+                                            }
+                                            
+                                            setTimeout(() => {
+                                                addressInput.style.backgroundColor = '';
+                                                addressInput.style.borderColor = '';
+                                            }, 3000);
+                                        };
+                                        
+                                        // Enhanced hover effects
+                                        div.onmouseenter = () => {
+                                            div.style.backgroundColor = '#f0f9ff';
+                                            div.style.transform = 'translateX(5px)';
+                                            div.style.transition = 'all 0.2s ease';
+                                        };
+                                        div.onmouseleave = () => {
+                                            div.style.backgroundColor = '';
+                                            div.style.transform = '';
+                                        };
+                                        
+                                        suggestionContainer.appendChild(div);
+                                    });
+                                    suggestionContainer.style.display = 'block';
+                                } else {
+                                    suggestionContainer.innerHTML = `
+                                        <div class="suggestion-item no-results">
+                                            ❌ No locations found for "${query}"
+                                            <small style="display:block;margin-top:5px;color:#666;">
+                                                Try with a city name, address, or postal code from anywhere in the world
+                                            </small>
+                                        </div>
+                                    `;
+                                    suggestionContainer.style.display = 'block';
+                                }
+                            })
+                            .withFailureHandler((error) => {
+                                console.error('Error fetching address suggestions:', error);
+                                suggestionContainer.innerHTML = `
+                                    <div class="suggestion-item error">
+                                        ⚠️ Connection error to OpenCage API
+                                        <small style="display:block;margin-top:5px;color:#666;">
+                                            Check your internet connection and try again
+                                        </small>
+                                    </div>
+                                `;
+                                suggestionContainer.style.display = 'block';
+                            })
+                            .getAddressSuggestions(query);
+                    }, 150); // Reduced debounce to 150ms for faster response
+                };
+                
+                // Add input event listener for autocomplete with keyboard navigation
+                let selectedIndex = -1;
+                
+                addressInput.addEventListener('input', (e) => {
+                    selectedIndex = -1; // Reset selection on new input
+                    fetchAddressSuggestions(e.target.value);
+                });
+                
+                // Keyboard navigation for suggestions
+                addressInput.addEventListener('keydown', (e) => {
+                    const suggestionItems = suggestionContainer.querySelectorAll('.suggestion-item:not(.loading):not(.no-results):not(.error)');
+                    
+                    if (suggestionItems.length === 0) return;
+                    
+                    switch (e.key) {
+                        case 'ArrowDown':
+                            e.preventDefault();
+                            selectedIndex = Math.min(selectedIndex + 1, suggestionItems.length - 1);
+                            updateSelection(suggestionItems);
+                            break;
+                        case 'ArrowUp':
+                            e.preventDefault();
+                            selectedIndex = Math.max(selectedIndex - 1, -1);
+                            updateSelection(suggestionItems);
+                            break;
+                        case 'Enter':
+                            e.preventDefault();
+                            if (selectedIndex >= 0 && suggestionItems[selectedIndex]) {
+                                suggestionItems[selectedIndex].click();
+                            }
+                            break;
+                        case 'Escape':
+                            suggestionContainer.style.display = 'none';
+                            selectedIndex = -1;
+                            break;
+                    }
+                });
+                
+                // Function to update visual selection
+                function updateSelection(items) {
+                    items.forEach((item, index) => {
+                        if (index === selectedIndex) {
+                            item.style.backgroundColor = '#007bff';
+                            item.style.color = 'white';
+                        } else {
+                            item.style.backgroundColor = '';
+                            item.style.color = '';
+                        }
+                    });
+                }
+                
+                // Close suggestions when clicking outside or on scroll
+                document.addEventListener('click', (e) => {
+                    if (!addressInput.contains(e.target) && !suggestionContainer.contains(e.target)) {
+                        suggestionContainer.style.display = 'none';
+                        selectedIndex = -1;
+                    }
+                });
+                
+                // Close suggestions on window blur or scroll
+                window.addEventListener('blur', () => {
+                    suggestionContainer.style.display = 'none';
+                    selectedIndex = -1;
+                });
+                
+                document.addEventListener('scroll', () => {
+                    if (suggestionContainer.style.display === 'block') {
+                        suggestionContainer.style.display = 'none';
+                        selectedIndex = -1;
+                    }
+                });
+            }
+            
+            // Toggle weather parameters display
+            if (includeWeatherCheckbox) {
+                includeWeatherCheckbox.addEventListener('change', function() {
+                    weatherParams.style.display = this.checked ? 'block' : 'none';
+                    // Show/hide main interface based on coordinates
+                    const lat = document.getElementById('latitude').value;
+                    const lng = document.getElementById('longitude').value;
+                    const weatherMainInterface = document.getElementById('weatherMainInterface');
+                    if (this.checked && lat && lng) {
+                        weatherMainInterface.style.display = 'block';
+                    } else {
+                        weatherMainInterface.style.display = 'none';
+                    }
+                });
+                
+                // Initialize display
+                weatherParams.style.display = includeWeatherCheckbox.checked ? 'block' : 'none';
+            }
+            
+            // Monitor coordinate changes to show/hide main interface
+            const latInput = document.getElementById('latitude');
+            const lngInput = document.getElementById('longitude');
+            
+            function checkCoordinatesAndShowInterface() {
+                const lat = latInput.value;
+                const lng = lngInput.value;
+                const weatherMainInterface = document.getElementById('weatherMainInterface');
+                const includeWeather = document.getElementById('includeWeatherData').checked;
+                
+                if (lat && lng && includeWeather) {
+                    weatherMainInterface.style.display = 'block';
+                } else {
+                    weatherMainInterface.style.display = 'none';
+                }
+            }
+            
+            if (latInput) {
+                latInput.addEventListener('input', checkCoordinatesAndShowInterface);
+            }
+            if (lngInput) {
+                lngInput.addEventListener('input', checkCoordinatesAndShowInterface);
+            }
+            
+            // Handle data type tabs
+            weatherDataTabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    // Remove active class from all tabs
+                    weatherDataTabs.forEach(t => t.classList.remove('active'));
+                    // Add active class to clicked tab
+                    this.classList.add('active');
+                    
+                    // Check the radio button
+                    const radio = this.querySelector('input[type="radio"]');
+                    if (radio) {
+                        radio.checked = true;
+                        handleDataTypeChange(radio.value);
+                    }
+                });
+            });
+            
+            // Handle weather data type selection
+            weatherDataTypes.forEach(radio => {
+                radio.addEventListener('change', function() {
+                    handleDataTypeChange(this.value);
+                });
+            });
+            
+            // Handle source option selection
+            sourceOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    // Remove selected class from all options
+                    sourceOptions.forEach(opt => opt.classList.remove('selected'));
+                    // Add selected class to clicked option
+                    this.classList.add('selected');
+                    
+                    // Check the radio button
+                    const radio = this.querySelector('input[type="radio"]');
+                    if (radio) {
+                        radio.checked = true;
+                    }
+                });
+            });
+            
+            // Set initial state
+            const checkedType = document.querySelector('input[name="weatherDataType"]:checked');
+            if (checkedType) {
+                handleDataTypeChange(checkedType.value);
+            }
+            
+            // Map placeholder click handler
+            if (mapPlaceholder) {
+                mapPlaceholder.addEventListener('click', function() {
+                    loadGoogleMapsAPI();
+                });
+            }
+            
+            // Update coordinates from address
+            if (updateLocationBtn) {
+                updateLocationBtn.addEventListener('click', function() {
+                    updateCoordinatesFromAddress();
+                });
+            }
+        }
+        
+        // Handle data type change
+        function handleDataTypeChange(selectedType) {
+            const weatherParams = document.getElementById('weatherParams');
+            const historyDateRange = document.getElementById('historyDateRange');
+            
+            weatherParams.setAttribute('data-type', selectedType);
+            
+            // Show/hide date range based on selection
+            if (selectedType === 'history') {
+                historyDateRange.style.display = 'block';
+            } else {
+                historyDateRange.style.display = 'none';
+            }
+        }
+        
+        // Function to update coordinates from address (simplified - in real app would use geocoding)
+        function updateCoordinatesFromAddress(address) {
+            // For now, just show a message that this would use geocoding
+            afficherMessage('Fonctionnalité de géocodage à implémenter', 'info');
+            console.log('Géocodage de l\'adresse:', address);
+        }
+        
+        // Function to load weather data with new Veolia API
+        function loadWeatherDataWithVeolia() {
+            const latitude = document.getElementById('latitude').value;
+            const longitude = document.getElementById('longitude').value;
+            const dataType = document.querySelector('input[name="weatherDataType"]:checked').value;
+            const timeInterval = document.querySelector('input[name="weatherTimeInterval"]:checked').value;
+            const dataSource = document.querySelector('input[name="weatherDataSource"]:checked').value;
+            
+            if (!latitude || !longitude) {
+                afficherMessage('Veuillez renseigner les coordonnées GPS', 'error');
+                return;
+            }
+            
+            afficherMessage('Chargement des données météo Veolia...', 'info');
+            
+            // Prepare parameters for API call
+            const weatherParams = {
+                latitude: parseFloat(latitude),
+                longitude: parseFloat(longitude),
+                dataType: dataType,
+                timeInterval: timeInterval,
+                dataSource: dataSource
+            };
+            
+            // Add date range for history
+            if (dataType === 'history') {
+                const startDate = document.getElementById('weatherStartDate').value;
+                const endDate = document.getElementById('weatherEndDate').value;
+                if (startDate && endDate) {
+                    weatherParams.startDate = startDate;
+                    weatherParams.endDate = endDate;
+                } else {
+                    afficherMessage('Veuillez sélectionner les dates de début et fin pour les données historiques', 'error');
+                    return;
+                }
+            }
+            
+            // Call the backend function with real Veolia API
+            google.script.run
+                .withSuccessHandler(function(response) {
+                    if (response && response.success) {
+                        afficherMessage('Données météo Veolia chargées avec succès!', 'success');
+                        
+                        // Update weather info display
+                        displayVeoliaWeatherData(response);
+                        console.log('Données météo Veolia reçues:', response);
+                    } else {
+                        afficherMessage('Erreur lors du chargement des données météo: ' + (response.message || response.error || 'Erreur inconnue'), 'error');
+                        console.error('Erreur API météo:', response);
+                    }
+                })
+                .withFailureHandler(function(error) {
+                    console.error('Erreur lors de l\'appel API météo Veolia:', error);
+                    afficherMessage('Erreur lors de l\'appel API météo: ' + error.toString(), 'error');
+                })
+                .getVeoliaWeatherData(weatherParams);
+        }
+        
+        // Function to display Veolia weather data
+        function displayVeoliaWeatherData(response) {
+            const weatherInfo = document.getElementById('weatherInfo');
+            const weatherRecommendations = document.getElementById('weatherRecommendations');
+            
+            // Show weather info section
+            weatherInfo.style.display = 'block';
+            
+            // Update status information
+            document.getElementById('weatherStatus').textContent = 'Données chargées';
+            document.getElementById('weatherDataAvailable').textContent = `${response.dataType} - ${response.timeInterval}`;
+            document.getElementById('weatherLocation').textContent = `${response.location.latitude}, ${response.location.longitude}`;
+            
+            // Display recommendations
+            if (response.recommendations && response.recommendations.length > 0) {
+                weatherRecommendations.innerHTML = '<strong>Informations :</strong><br>' + 
+                    response.recommendations.join('<br>');
+                weatherRecommendations.style.display = 'block';
+            } else {
+                weatherRecommendations.style.display = 'none';
+            }
+            
+            // Log the full data for debugging
+            console.log('Données météo complètes:', response.data);
+        }
+        
+        // Google Maps API functions
+        let map = null;
+        let marker = null;
+        let geocoder = null;
+        let isGoogleMapsLoaded = false;
+        
+        // Load Google Maps API
+        function loadGoogleMapsAPI() {
+            if (isGoogleMapsLoaded) {
+                initializeGoogleMap();
+                return;
+            }
+            
+            // Show loading message
+            const mapContainer = document.getElementById('weatherMap');
+            mapContainer.innerHTML = '<div class="map-placeholder"><div class="map-icon">🔄</div><p>Chargement de Google Maps...</p></div>';
+            
+            // For demo purposes, simulate map loading with a simple interactive preview
+            setTimeout(() => {
+                initializeDemoMap();
+            }, 1000);
+            
+            isGoogleMapsLoaded = true;
+        }
+        
+        // Initialize demo map (fallback without Google Maps API)
+        function initializeDemoMap() {
+            const mapContainer = document.getElementById('weatherMap');
+            const latInput = document.getElementById('latitude');
+            const lngInput = document.getElementById('longitude');
+            
+            // Get current coordinates or use default (Paris)
+            const lat = parseFloat(latInput.value) || 48.8566;
+            const lng = parseFloat(lngInput.value) || 2.3522;
+            
+            // Create interactive demo map with real coordinates visualization
+            mapContainer.innerHTML = `
+                <div style="width: 100%; height: 100%; position: relative; border-radius: 8px; overflow: hidden; background: #f0f9ff;">
+                    <!-- Satellite-like background -->
+                    <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
+                         background: linear-gradient(45deg, #1e40af 0%, #3b82f6 25%, #60a5fa 50%, #93c5fd 75%, #dbeafe 100%);
+                         opacity: 0.8;"></div>
+                    
+                    <!-- Grid overlay for map-like appearance -->
+                    <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
+                         background-image: 
+                             linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px),
+                             linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px);
+                         background-size: 20px 20px;"></div>
+                    
+                    <!-- Center marker -->
+                    <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+                         width: 20px; height: 20px; background: #ef4444; border-radius: 50%; 
+                         box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.3); cursor: pointer;
+                         animation: pulse 2s infinite;" onclick="adjustCoordinates()"></div>
+                    
+                    <!-- Coordinates display -->
+                    <div style="position: absolute; bottom: 8px; left: 8px; right: 8px; 
+                         background: rgba(0,0,0,0.7); color: white; padding: 8px; 
+                         border-radius: 6px; font-size: 11px; text-align: center;">
+                        <div style="font-weight: bold; margin-bottom: 2px;">📍 Position Actuelle</div>
+                        <div>Lat: ${lat.toFixed(6)} | Lng: ${lng.toFixed(6)}</div>
+                        <div style="font-size: 10px; opacity: 0.8; margin-top: 2px;">Cliquez sur le marqueur pour ajuster</div>
+                    </div>
+                    
+                    <!-- Zoom controls -->
+                    <div style="position: absolute; top: 8px; right: 8px; display: flex; flex-direction: column; gap: 4px;">
+                        <button onclick="zoomIn()" style="width: 30px; height: 30px; background: rgba(255,255,255,0.9); 
+                                border: none; border-radius: 4px; cursor: pointer; font-size: 16px; font-weight: bold;">+</button>
+                        <button onclick="zoomOut()" style="width: 30px; height: 30px; background: rgba(255,255,255,0.9); 
+                                border: none; border-radius: 4px; cursor: pointer; font-size: 16px; font-weight: bold;">−</button>
+                    </div>
+                    
+                    <!-- Map type indicator -->
+                    <div style="position: absolute; top: 8px; left: 8px; background: rgba(255,255,255,0.9); 
+                         padding: 4px 8px; border-radius: 4px; font-size: 10px; font-weight: bold; color: #1e40af;">
+                        SATELLITE VIEW
+                    </div>
+                </div>
+                
+                <style>
+                    @keyframes pulse {
+                        0% { box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.3); }
+                        50% { box-shadow: 0 0 0 8px rgba(239, 68, 68, 0.1); }
+                        100% { box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.3); }
+                    }
+                </style>
+            `;
+            
+            // Show weather interface
+            showWeatherMainInterface();
+        }
+        
+        // Add zoom and coordinate adjustment functions
+        let currentZoom = 10;
+        
+        function zoomIn() {
+            currentZoom = Math.min(currentZoom + 2, 18);
+            afficherMessage(`Zoom: ${currentZoom}x`, 'info');
+            // Refresh map with new zoom
+            setTimeout(initializeDemoMap, 100);
+        }
+        
+        function zoomOut() {
+            currentZoom = Math.max(currentZoom - 2, 2);
+            afficherMessage(`Zoom: ${currentZoom}x`, 'info');
+            // Refresh map with new zoom
+            setTimeout(initializeDemoMap, 100);
+        }
+        
+        function adjustCoordinates() {
+            const lat = parseFloat(document.getElementById('latitude').value) || 48.8566;
+            const lng = parseFloat(document.getElementById('longitude').value) || 2.3522;
+            
+            // Simulate small coordinate adjustment
+            const newLat = lat + (Math.random() - 0.5) * 0.001;
+            const newLng = lng + (Math.random() - 0.5) * 0.001;
+            
+            updateCoordinates(newLat, newLng);
+            initializeDemoMap(); // Refresh the map
+        }
+        
+        // Initialize Google Map (when real API is available)
+        function initializeGoogleMap() {
+            // This would be called when real Google Maps API is loaded
+            // For now, use demo map
+            initializeDemoMap();
+        }
+        
+        // Update coordinates and sync inputs
+        function updateCoordinates(lat, lng) {
+            document.getElementById('latitude').value = lat.toFixed(6);
+            document.getElementById('longitude').value = lng.toFixed(6);
+            
+            // Remplir automatiquement geocode et locationName
+            const geocodeValue = `${lat.toFixed(6)},${lng.toFixed(6)}`;
+            document.getElementById('geocode').value = geocodeValue;
+            
+            // Si on a une adresse, l'utiliser comme locationName, sinon utiliser les coordonnées
+            const address = document.getElementById('locationAddress').value;
+            if (address) {
+                document.getElementById('locationName').value = address;
+            } else {
+                document.getElementById('locationName').value = `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
+            }
+            
+            // Show weather main interface
+            showWeatherMainInterface();
+            
+            afficherMessage(`Coordonnées mises à jour: ${lat.toFixed(4)}, ${lng.toFixed(4)}`, 'success');
+        }
+        
+        // Update map from coordinates inputs
+        function updateMapFromCoordinates() {
+            const lat = parseFloat(document.getElementById('latitude').value);
+            const lng = parseFloat(document.getElementById('longitude').value);
+            
+            if (isNaN(lat) || isNaN(lng)) {
+                afficherMessage('Coordonnées invalides', 'error');
+                return;
+            }
+            
+            // Refresh demo map with new coordinates
+            if (isGoogleMapsLoaded) {
+                initializeDemoMap();
+            } else {
+                loadGoogleMapsAPI();
+            }
+            
+            showWeatherMainInterface();
+        }
+        
+        // Update coordinates from address (simplified version)
+        function updateCoordinatesFromAddress() {
+            const address = document.getElementById('locationAddress').value;
+            
+            if (!address) {
+                afficherMessage('Veuillez entrer une adresse', 'error');
+                return;
+            }
+            
+            // Simulate geocoding with some common locations
+            const commonLocations = {
+                'paris': { lat: 48.8566, lng: 2.3522 },
+                'london': { lat: 51.5074, lng: -0.1278 },
+                'new york': { lat: 40.7128, lng: -74.0060 },
+                'tokyo': { lat: 35.6762, lng: 139.6503 },
+                'sydney': { lat: -33.8688, lng: 151.2093 },
+                'hong kong': { lat: 22.3193, lng: 114.1694 }
+            };
+            
+            const searchKey = address.toLowerCase();
+            let found = false;
+            
+            for (const [key, coords] of Object.entries(commonLocations)) {
+                if (searchKey.includes(key)) {
+                    updateCoordinates(coords.lat, coords.lng);
+                    afficherMessage(`Localisation trouvée: ${address}`, 'success');
+                    found = true;
+                    break;
+                }
+            }
+            
+            if (!found) {
+                // Generate approximate coordinates for demo
+                const lat = 48 + Math.random() * 10;
+                const lng = 2 + Math.random() * 10;
+                updateCoordinates(lat, lng);
+                afficherMessage(`Position approximative pour: ${address}`, 'info');
+            }
+            
+            // Refresh map
+            if (isGoogleMapsLoaded) {
+                initializeDemoMap();
+            }
+        }
+        
+        // Show weather main interface when coordinates are available
+        function showWeatherMainInterface() {
+            const lat = document.getElementById('latitude').value;
+            const lng = document.getElementById('longitude').value;
+            const weatherMainInterface = document.getElementById('weatherMainInterface');
+            const includeWeatherData = document.getElementById('includeWeatherData').checked;
+            
+            if (lat && lng && includeWeatherData) {
+                weatherMainInterface.style.display = 'block';
+            }
+        }
+        
+        // Fonction pour synchroniser un slider et son champ texte
+        function syncSliderAndInput(sliderId, inputId) {
+            const slider = document.getElementById(sliderId);
+            const input = document.getElementById(inputId);
+            
+            if (!slider || !input) return;
+            
+            // Fonction pour formater les nombres avec des séparateurs de milliers
+            function formatNumber(num) {
+                return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+            }
+            
+            // Fonction pour extraire le nombre du texte formaté
+            function extractNumber(str) {
+                return parseFloat(str.replace(/[^\d.-]/g, '')) || 0;
+            }
+            
+            // Mettre à jour le champ texte quand le slider change
+            slider.addEventListener('input', function() {
+                input.value = formatNumber(slider.value);
+            });
+            
+            // Mettre à jour le slider quand le champ texte change
+            input.addEventListener('input', function() {
+                const numericalValue = extractNumber(input.value);
+                slider.value = numericalValue;
+                // Re-formater le texte pour garantir une cohérence
+                input.value = formatNumber(numericalValue);
+            });
+            
+            // S'assurer que les valeurs initiales sont synchronisées
+            if (input.value) {
+                const numericalValue = extractNumber(input.value);
+                slider.value = numericalValue;
+                input.value = formatNumber(numericalValue);
+            } else if (slider.value) {
+                input.value = formatNumber(slider.value);
+            }
+        }
+        
+        // Fonction pour initialiser les variables globales de sauvegarde si elles n'existent pas déjà
+        function initSavedValues() {
+            // Initialiser les variables globales pour stocker les valeurs entre les changements de durée
+            for (let i = 1; i <= 12; i++) {
+                const idx = (i < 10) ? '0' + i : '' + i;
+                if (typeof window[`savedDate_${idx}`] === 'undefined') {
+                    window[`savedDate_${idx}`] = '';
+                }
+                if (typeof window[`savedElectricity_${idx}`] === 'undefined') {
+                    window[`savedElectricity_${idx}`] = '';
+                }
+            }
+        }
+        
+        // Fonction pour générer et mettre à jour les champs de données d'énergie (toujours 12 mois)
+        function updateEnergyFields() {
+            // S'assurer que les variables globales de sauvegarde sont initialisées
+            initSavedValues();
+            
+            // Toujours 12 mois maintenant
+            const dureeProjet = 12;
+            
+            // Récupérer le conteneur des données d'énergie
+            const grid = document.getElementById('energyDataGrid');
+            
+            // Sauvegarder les valeurs actuelles avant de régénérer les champs
+            const savedValues = {};
+            for (let i = 1; i <= 12; i++) {
+                const idx = (i < 10) ? '0' + i : '' + i;
+                const dateElement = document.getElementById(`date_${idx}`);
+                const electricityElement = document.getElementById(`electricity_${idx}`);
+                
+                if (dateElement) {
+                    savedValues[`date_${idx}`] = dateElement.value;
+                    // Sauvegarder également dans la variable globale
+                    window[`savedDate_${idx}`] = dateElement.value;
+                }
+                
+                if (electricityElement) {
+                    savedValues[`electricity_${idx}`] = electricityElement.value;
+                    // Sauvegarder également dans la variable globale
+                    window[`savedElectricity_${idx}`] = electricityElement.value;
+                }
+            }
+            
+            // Supprimer tous les champs existants sauf les en-têtes
+            const headers = grid.querySelectorAll('.energy-header');
+            
+            // Effacer tout le contenu du grid sauf les en-têtes
+            grid.innerHTML = '';
+            
+            // Remettre les en-têtes
+            headers.forEach(header => grid.appendChild(header));
+            
+            // Générer les champs pour les 12 mois
+            for (let i = 1; i <= 12; i++) {
+                const idx = (i < 10) ? '0' + i : '' + i;
+                const year = 2023;
+                const month = (i < 10) ? '0' + i : '' + i;
+                const defaultDate = `${year}-${month}`;
+                
+                // Afficher tous les 12 mois maintenant
+                // Obtenir les valeurs des données du serveur en utilisant la fonction formatIndex
+                const serverDateValue = "<?= convertirEnFormatMois(donnees['date_' + formatIndex(i)]) || '' ?>";
+                const serverElectricityValue = "<?= donnees['electricity_' + formatIndex(i)] || '' ?>";
+                const serverElectricityNumValue = parseFloat("<?= convertirEnNombre(donnees['electricity_' + formatIndex(i)]) || '1000000' ?>");
+                    
+                // Récupérer les valeurs globales (conservées entre les changements de durée)
+                const globalDateValue = window[`savedDate_${idx}`] || '';
+                const globalElectricityValue = window[`savedElectricity_${idx}`] || '';
+                
+                // Déterminer la valeur à utiliser pour la date (priorité: valeur sauvegardée > valeur globale > valeur serveur > séquence cohérente)
+                let dateValue;
+                if (savedValues[`date_${idx}`]) {
+                    dateValue = savedValues[`date_${idx}`];
+                } else if (globalDateValue) {
+                    dateValue = globalDateValue;
+                } else if (serverDateValue) {
+                    dateValue = serverDateValue;
+                } else {
+                    // Générer une séquence cohérente de 12 mois consécutifs
+                    dateValue = defaultDate;
+                }
+                
+                // Déterminer la valeur à utiliser pour l'électricité (priorité: valeur sauvegardée > valeur globale > valeur serveur > valeur par défaut)
+                const electricityValue = savedValues[`electricity_${idx}`] || 
+                                       globalElectricityValue ||
+                                       (serverElectricityValue ? serverElectricityValue : '1,000,000');
+                
+                const electricitySliderValue = savedValues[`electricity_${idx}`] ? 
+                                             extractNumber(savedValues[`electricity_${idx}`]) : 
+                                             (globalElectricityValue ? extractNumber(globalElectricityValue) :
+                                             (serverElectricityNumValue || 1000000));
+                
+                // Créer les éléments pour la date
+                const dateDiv = document.createElement('div');
+                dateDiv.className = 'energy-row';
+                dateDiv.dataset.month = i;
+                dateDiv.innerHTML = `
+                    <input type="month" id="date_${idx}" name="date_${idx}" value="${dateValue}">
+                `;
+                grid.appendChild(dateDiv);
+                
+                // Créer les éléments pour la valeur d'électricité
+                const electricityDiv = document.createElement('div');
+                electricityDiv.className = 'energy-slider-container';
+                electricityDiv.dataset.month = i;
+                electricityDiv.innerHTML = `
+                    <input type="range" id="electricity_slider_${idx}" min="0" max="2000000" step="1000" 
+                           value="${electricitySliderValue}">
+                    <input type="text" id="electricity_${idx}" name="electricity_${idx}" class="energy-value-input" 
+                           value="${electricityValue}">
+                `;
+                grid.appendChild(electricityDiv);
+                
+                // Synchroniser le slider et l'input
+                syncSliderAndInput(`electricity_slider_${idx}`, `electricity_${idx}`);
+            }
+            
+            // Attacher les listeners pour gérer les mois uniques
+            setTimeout(() => {
+                attachMonthChangeListeners();
+                // Vérifier et corriger les doublons existants au chargement
+                gererMoisUniques();
+            }, 200);
+        }
+        
+        // Fonction pour extraire le nombre d'une chaîne formatée
+        function extractNumber(str) {
+            if (!str) return 0;
+            return parseFloat(str.toString().replace(/[^\d.-]/g, '')) || 0;
+        }
+        
+        // Fonction pour afficher des messages à l'utilisateur
+        function afficherMessage(message, type = 'info') {
+            // Créer ou récupérer l'élément de message
+            let messageDiv = document.getElementById('message-popup');
+            if (!messageDiv) {
+                messageDiv = document.createElement('div');
+                messageDiv.id = 'message-popup';
+                messageDiv.style.cssText = `
+                    position: fixed;
+                    top: 10px;
+                    right: 10px;
+                    padding: 10px 15px;
+                    border-radius: 5px;
+                    font-weight: bold;
+                    z-index: 10000;
+                    max-width: 300px;
+                    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+                `;
+                document.body.appendChild(messageDiv);
+            }
+            
+            // Définir le style selon le type
+            const styles = {
+                info: 'background-color: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb;',
+                warning: 'background-color: #fff3cd; color: #856404; border: 1px solid #ffeaa7;',
+                error: 'background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb;',
+                success: 'background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb;'
+            };
+            
+            messageDiv.style.cssText += styles[type] || styles.info;
+            messageDiv.textContent = message;
+            messageDiv.style.display = 'block';
+            
+            // Masquer automatiquement après 4 secondes
+            setTimeout(() => {
+                if (messageDiv) {
+                    messageDiv.style.display = 'none';
+                }
+            }, 4000);
+        }
+
+        // Fonction pour gérer les mois uniques et éviter les doublons
+        function gererMoisUniques(changedIndex = null, changedValue = null) {
+            const months = [];
+            
+            // Collecter tous les mois actuels
+            for (let i = 1; i <= 12; i++) {
+                const idx = (i < 10) ? '0' + i : '' + i;
+                const dateElement = document.getElementById(`date_${idx}`);
+                if (dateElement && dateElement.value) {
+                    months.push({
+                        index: i,
+                        value: dateElement.value,
+                        element: dateElement
+                    });
+                }
+            }
+            
+            // Si moins de 12 mois, ne pas traiter
+            if (months.length < 12) return;
+            
+            // Déterminer l'année cible
+            let targetYear = null;
+            
+            // Si un utilisateur vient de changer un mois, utiliser son année comme référence
+            if (changedIndex && changedValue) {
+                const [year] = changedValue.split('-');
+                targetYear = year;
+                console.log(`Année cible définie par l'utilisateur: ${targetYear}`);
+            } else {
+                // Sinon, extraire les années pour déterminer l'année cible
+                const yearCount = {};
+                months.forEach(month => {
+                    if (month.value) {
+                        const [year] = month.value.split('-');
+                        yearCount[year] = (yearCount[year] || 0) + 1;
+                    }
+                });
+                
+                // Trouver l'année la plus représentée
+                let maxCount = 0;
+                Object.keys(yearCount).forEach(year => {
+                    if (yearCount[year] > maxCount) {
+                        maxCount = yearCount[year];
+                        targetYear = year;
+                    }
+                });
+                
+                // Si pas d'année majoritaire, prendre la première
+                if (!targetYear && months.length > 0) {
+                    targetYear = months[0].value.split('-')[0];
+                }
+                
+                console.log(`Année cible automatique: ${targetYear}`);
+            }
+            
+            // Créer un mapping des mois actuels (mois -> position)
+            const monthMapping = {}; // mois -> [positions qui l'utilisent]
+            const currentMonths = new Set(); // mois uniques actuellement utilisés
+            
+            months.forEach(month => {
+                if (month.value) {
+                    const [year, monthNum] = month.value.split('-');
+                    const monthKey = monthNum;
+                    
+                    if (!monthMapping[monthKey]) {
+                        monthMapping[monthKey] = [];
+                    }
+                    monthMapping[monthKey].push(month.index);
+                    currentMonths.add(monthKey);
+                }
+            });
+            
+            // Identifier les doublons et les mois manquants
+            const duplicates = Object.keys(monthMapping).filter(month => monthMapping[month].length > 1);
+            const usedMonths = new Set(Object.keys(monthMapping));
+            const allMonths = new Set(['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12']);
+            const missingMonths = [...allMonths].filter(month => !usedMonths.has(month));
+            
+            console.log('Doublons détectés:', duplicates);
+            console.log('Mois manquants:', missingMonths);
+            
+            // Vérifier s'il faut corriger
+            const hasYearMismatch = months.some(month => {
+                const [year] = month.value.split('-');
+                return year !== targetYear;
+            });
+            
+            // S'il y a des doublons ou des années différentes, corriger
+            if (duplicates.length > 0 || hasYearMismatch) {
+                console.log('Correction nécessaire');
+                
+                // Étape 1: Corriger toutes les années pour qu'elles correspondent à l'année cible
+                for (let i = 1; i <= 12; i++) {
+                    const idx = (i < 10) ? '0' + i : '' + i;
+                    const dateElement = document.getElementById(`date_${idx}`);
+                    
+                    if (dateElement && dateElement.value) {
+                        const [currentYear, month] = dateElement.value.split('-');
+                        
+                        if (currentYear !== targetYear) {
+                            const newValue = `${targetYear}-${month}`;
+                            const oldValue = dateElement.value;
+                            
+                            dateElement.value = newValue;
+                            window[`savedDate_${idx}`] = newValue;
+                            
+                            console.log(`Position ${i}: ${oldValue} → ${newValue} (correction année)`);
+                        }
+                    }
+                }
+                
+                // Recalculer le mapping après correction des années
+                const updatedMonthMapping = {};
+                months.forEach(month => {
+                    const idx = (month.index < 10) ? '0' + month.index : '' + month.index;
+                    const dateElement = document.getElementById(`date_${idx}`);
+                    if (dateElement && dateElement.value) {
+                        const [year, monthNum] = dateElement.value.split('-');
+                        const monthKey = monthNum;
+                        
+                        if (!updatedMonthMapping[monthKey]) {
+                            updatedMonthMapping[monthKey] = [];
+                        }
+                        updatedMonthMapping[monthKey].push(month.index);
+                    }
+                });
+                
+                // Étape 2: Traiter les doublons après correction des années
+                const updatedDuplicates = Object.keys(updatedMonthMapping).filter(month => updatedMonthMapping[month].length > 1);
+                let missingIndex = 0;
+                
+                updatedDuplicates.forEach(duplicatedMonth => {
+                    const positions = updatedMonthMapping[duplicatedMonth];
+                    
+                    // Si l'utilisateur vient de modifier un mois, le garder en priorité
+                    let keepPosition = positions[0]; // Par défaut, garder le premier
+                    
+                    if (changedIndex && positions.includes(changedIndex)) {
+                        keepPosition = changedIndex;
+                        console.log(`Priorité donnée au changement utilisateur pour la position ${changedIndex}`);
+                    }
+                    
+                    // Corriger les autres positions
+                    positions.forEach(position => {
+                        if (position !== keepPosition && missingIndex < missingMonths.length) {
+                            const idx = (position < 10) ? '0' + position : '' + position;
+                            const dateElement = document.getElementById(`date_${idx}`);
+                            
+                            if (dateElement) {
+                                const oldValue = dateElement.value;
+                                const newMonth = missingMonths[missingIndex];
+                                const newValue = `${targetYear}-${newMonth}`;
+                                
+                                dateElement.value = newValue;
+                                window[`savedDate_${idx}`] = newValue;
+                                
+                                console.log(`Position ${position}: ${oldValue} → ${newValue} (résolution doublon)`);
+                                missingIndex++;
+                            }
+                        }
+                    });
+                });
+                
+                // Message informatif
+                let message = `Mois réorganisés pour ${targetYear}`;
+                if (duplicates.length > 0) {
+                    message += ` (${duplicates.length} doublon${duplicates.length > 1 ? 's' : ''} corrigé${duplicates.length > 1 ? 's' : ''})`;
+                }
+                if (hasYearMismatch) {
+                    message += ` (années unifiées)`;
+                }
+                
+                afficherMessage(message, 'info');
+            }
+        }
+        
+        // Fonction pour attacher les listeners de changement de mois
+        function attachMonthChangeListeners() {
+            for (let i = 1; i <= 12; i++) {
+                const idx = (i < 10) ? '0' + i : '' + i;
+                const dateElement = document.getElementById(`date_${idx}`);
+                
+                if (dateElement) {
+                    // Retirer l'ancien listener s'il existe
+                    const existingListener = dateElement.onchange;
+                    if (existingListener) {
+                        dateElement.removeEventListener('change', existingListener);
+                    }
+                    
+                    // Ajouter le nouveau listener
+                    dateElement.addEventListener('change', function(event) {
+                        const changedValue = event.target.value;
+                        const changedIndex = i;
+                        console.log(`Mois changé pour ${idx}: ${changedValue}`);
+                        
+                        // Sauvegarder immédiatement la nouvelle valeur
+                        window[`savedDate_${idx}`] = changedValue;
+                        
+                        // Vérifier et corriger les doublons avec un petit délai pour permettre la finalisation de la saisie
+                        setTimeout(() => {
+                            gererMoisUniques(changedIndex, changedValue);
+                        }, 200);
+                    });
+                    
+                    // Ajouter également un listener sur la saisie (input) pour une réactivité immédiate
+                    dateElement.addEventListener('input', function(event) {
+                        const currentValue = event.target.value;
+                        // Sauvegarder temporairement
+                        window[`savedDate_${idx}`] = currentValue;
+                    });
+                }
+            }
+            
+            console.log('Listeners de changement de mois attachés');
+        }
+        
+        // Initialiser les synchronisations slider/input pour tous les champs d'énergie (12 mois)
+        function initEnergySliders() {
+            // Initialiser pour tous les 12 mois
+            for (let i = 1; i <= 12; i++) {
+                const idx = (i < 10) ? '0' + i : '' + i;
+                syncSliderAndInput('electricity_slider_' + idx, 'electricity_' + idx);
+            }
+        }
+        
+        // Gestionnaire d'événements
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOMContentLoaded - début initialisation');
+            // Initialiser le calculateur
+            initializeCalculator();
+            
+            // Gestion du formulaire
+            console.log('Ajout de l\'event listener au formulaire');
+            document.getElementById('calculateurForm').addEventListener('submit', function(e) {
+                console.log('Submit event déclenché !');
+                e.preventDefault();
+                sauvegarderDonnees();
+            });
+            
+            // Gestion de l'affichage des sections avancées
+            document.getElementById('nightReduction').addEventListener('change', toggleNightReductionParams);
+            document.getElementById('includeWeatherData').addEventListener('change', toggleWeatherParams);
+            document.getElementById('individual_chillers').addEventListener('change', toggleChillerConfiguration);
+            
+            // Gestion du nombre d'unités de chillers
+            document.getElementById('chillers_units').addEventListener('input', function() {
+                const individualChillersEnabled = document.getElementById('individual_chillers').checked;
+                if (individualChillersEnabled) {
+                    updateChillerVisibility();
+                }
+            });
+            
+            // Configuration de l'interface météo Veolia
+            setupWeatherInterface();
+            
+            // Initialisation des sections
+            toggleNightReductionParams();
+            toggleWeatherParams();
+            toggleChillerConfiguration();
+            
+            // Initialiser les champs d'énergie (toujours 12 mois)
+            updateEnergyFields();
+        });
+        
+        // Initialisation manuelle (au cas où DOMContentLoaded n'a pas fonctionné)
+        setTimeout(function() {
+            initializeCalculator();
+            toggleNightReductionParams();
+            toggleWeatherParams();
+            
+            // S'assurer que les champs d'énergie sont bien générés au démarrage
+            updateEnergyFields();
+            
+            // Initialiser les synchronisations slider/input
+            initEnergySliders();
+            
+            // Attacher les listeners pour les mois uniques
+            setTimeout(() => {
+                attachMonthChangeListeners();
+                gererMoisUniques();
+            }, 300);
+            
+            // Initialize default coordinates if empty
+            if (!document.getElementById('latitude').value) {
+                document.getElementById('latitude').value = '48.8566'; // Paris default
+                document.getElementById('longitude').value = '2.3522';
+                document.getElementById('geocode').value = '48.8566,2.3522';
+                document.getElementById('locationName').value = 'Paris, France';
+                if (document.getElementById('locationAddress')) {
+                    document.getElementById('locationAddress').value = 'Paris, France';
+                }
+            } else {
+                // Si les coordonnées existent déjà, synchroniser geocode
+                const lat = document.getElementById('latitude').value;
+                const lng = document.getElementById('longitude').value;
+                if (lat && lng) {
+                    document.getElementById('geocode').value = `${lat},${lng}`;
+                    if (!document.getElementById('locationName').value) {
+                        document.getElementById('locationName').value = `${parseFloat(lat).toFixed(4)}, ${parseFloat(lng).toFixed(4)}`;
+                    }
+                }
+            }
+        }, 100);
+
+        // Fonction pour calculer l'estimation
+        function calculerEstimation() {
+            var donnees = collecterDonnees();
+            
+            if (!donnees.nomProjet || donnees.nomProjet.trim() === '') {
+                afficherMessage('Please fill in at least the project name to calculate an estimate', 'error');
+                return;
+            }
+
+            afficherMessage('Calculating...', 'info');
+            
+            google.script.run
+                .withSuccessHandler(afficherEstimation)
+                .withFailureHandler(function(error) {
+                    afficherMessage('Calculation error: ' + error, 'error');
+                })
+                .calculerCouts(donnees);
+        }
+
+        // Fonction pour afficher l'animation de chargement
+        function afficherChargement() {
+            const overlay = document.getElementById('loadingOverlay');
+            const progressBar = document.getElementById('loadingProgressBar');
+            overlay.style.display = 'flex';
+            
+            // Animation de la barre de progression
+            let width = 0;
+            const interval = setInterval(function() {
+                if (width >= 95) {
+                    clearInterval(interval);
+                } else {
+                    width += Math.random() * 5;
+                    if (width > 95) width = 95; // Maximum 95% jusqu'à la réception des résultats
+                    progressBar.style.width = width + '%';
+                }
+            }, 200);
+            
+            return interval;
+        }
+        
+        // Fonction pour cacher l'animation de chargement
+        function cacherChargement() {
+            const overlay = document.getElementById('loadingOverlay');
+            const progressBar = document.getElementById('loadingProgressBar');
+            progressBar.style.width = '100%'; // Terminer la barre de progression
+            setTimeout(function() {
+                overlay.style.display = 'none';
+                progressBar.style.width = '0%'; // Réinitialiser pour la prochaine fois
+            }, 500);
+        }
+        
+        // Fonction pour afficher les résultats techniques
+        function afficherResultats(resultats) {
+            // Activer la section de résultats
+            document.getElementById('resultatsSection').style.display = 'block';
+            
+            // Afficher les données dans les éléments correspondants
+            document.getElementById('chillers_current_consumption').textContent = formatNumber(resultats.chillers_current_consumption);
+            document.getElementById('chillers_new_consumption').textContent = formatNumber(resultats.chillers_new_consumption);
+            document.getElementById('chillers_savings').textContent = formatNumber(resultats.chillers_savings);
+            document.getElementById('chiller1_startups_runtime').textContent = resultats.chiller1_startups_runtime;
+            document.getElementById('chiller2_startups_runtime').textContent = resultats.chiller2_startups_runtime;
+            document.getElementById('chiller3_startups_runtime').textContent = resultats.chiller3_startups_runtime;
+            
+            document.getElementById('sec_pumps_current_consumption').textContent = formatNumber(resultats.sec_pumps_current_consumption);
+            document.getElementById('sec_pumps_new_consumption').textContent = formatNumber(resultats.sec_pumps_new_consumption);
+            document.getElementById('sec_pumps_savings').textContent = formatNumber(resultats.sec_pumps_savings);
+            
+            document.getElementById('total_savings').textContent = formatNumber(resultats.total_savings);
+            
+            // Afficher les pourcentages avec plus de précision et debug
+            const percentCooling = parseFloat(resultats.total_percent_cooling) || 0;
+            const percentCspt = parseFloat(resultats.total_percent_cspt) || 0;
+            
+            console.log('Pourcentages reçus du serveur:', {
+                total_percent_cooling: resultats.total_percent_cooling,
+                total_percent_cspt: resultats.total_percent_cspt,
+                percentCooling: percentCooling,
+                percentCspt: percentCspt
+            });
+            
+            // Multiplier par 100 pour convertir en pourcentage et afficher avec 2 décimales si > 0
+            const displayPercentCooling = percentCooling * 100;
+            const displayPercentCspt = percentCspt * 100;
+            
+            document.getElementById('total_percent_cooling').textContent = displayPercentCooling > 0 ? displayPercentCooling.toFixed(0) : '0';
+            document.getElementById('total_percent_cspt').textContent = displayPercentCspt > 0 ? displayPercentCspt.toFixed(0) : '0';
+            
+            // Faire défiler jusqu'aux résultats
+            document.getElementById('resultatsSection').scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        // Fonction pour formater les nombres (ajouter des séparateurs de milliers)
+        function formatNumber(num) {
+            if (!num) return '0';
+            if (typeof num === 'string') {
+                num = num.replace(/[^\d.-]/g, '');
+            }
+            // Pour les grandes sommes (économies), pas de décimales
+            const parsedNum = parseFloat(num);
+            if (parsedNum >= 1000) {
+                return Math.round(parsedNum).toLocaleString('en-US');
+            } else {
+                return parsedNum.toLocaleString('en-US');
+            }
+        }
+
+        // Fonction pour fermer la popup
+        function fermerPopup() {
+            try {
+                google.script.host.close();
+            } catch (error) {
+                console.log('Impossible de fermer la popup:', error);
+                // Alternative si google.script.host n'est pas disponible
+                window.close();
+            }
+        }
+
+        // Fonction pour sauvegarder les données
+        function sauvegarderDonnees() {
+            console.log('sauvegarderDonnees appelée !');
+            var donnees = collecterDonnees();
+            
+            // Advanced mode - check only project name (minimal required field)
+            if (!donnees.nomProjet || donnees.nomProjet.trim() === '') {
+                afficherMessage('Please fill in at least the project name', 'error');
+                return;
+            }
+            
+            // Start loading animation
+            const loadingInterval = afficherChargement();
+            
+            afficherMessage('Calculation and save in progress...', 'info');
+            
+            // Afficher les données à sauvegarder pour debug
+            console.log('Data to save:', donnees);
+            
+            // Si les données météo sont incluses et les coordonnées sont disponibles,
+            // télécharger directement les données météo Veolia et sauvegarder tout
+            if (donnees.includeWeatherData && donnees.latitude && donnees.longitude) {
+                // Préparation des paramètres météo à envoyer à l'API Veolia
+                const weatherParams = {
+                    latitude: donnees.latitude,
+                    longitude: donnees.longitude,
+                    locationName: donnees.locationName || donnees.locationAddress,
+                    locationAddress: donnees.locationAddress,
+                    startDate: donnees.weatherStartDate,
+                    endDate: donnees.weatherEndDate
+                };
+                
+                console.log('Sauvegarde avec téléchargement automatique des données météo Veolia...');
+                
+                // Utiliser directement la nouvelle fonction qui télécharge et sauvegarde
+                google.script.run
+                    .withSuccessHandler(function(result) {
+                        // Terminer l'animation de chargement
+                        clearInterval(loadingInterval);
+                        cacherChargement();
+                        
+                        if (result.success) {
+                            let message = result.message;
+                            if (result.weatherDataDownloaded) {
+                                message += ' ✅ Données météo Veolia téléchargées dans la feuille "Weather Data".';
+                            } else if (result.weatherError) {
+                                message += ' ⚠️ Erreur données météo: ' + result.weatherError;
+                            }
+                            
+                            afficherMessage(message, 'success');
+                            
+                            // Si on a des résultats, les afficher
+                            if (result.resultats) {
+                                console.log('Résultats détaillés reçus:', result.resultats);
+                                console.log('Pourcentages dans résultats:', {
+                                    total_percent_cooling: result.resultats.total_percent_cooling,
+                                    total_percent_cspt: result.resultats.total_percent_cspt
+                                });
+                                afficherResultats(result.resultats);
+                            } else {
+                                console.log('Aucun résultat dans la réponse');
+                            }
+                            
+                            // Log pour debug
+                            console.log('Data saved successfully:', result);
+                        } else {
+                            afficherMessage(result.message, 'error');
+                            console.log('Erreur de sauvegarde:', result);
+                        }
+                    })
+                    .withFailureHandler(function(error) {
+                        // Finish loading animation in case of error
+                        clearInterval(loadingInterval);
+                        cacherChargement();
+                        
+                        afficherMessage('Save error: ' + error, 'error');
+                        console.error('Detailed error:', error);
+                    })
+                    .sauvegarderDonneesAvecMeteo(donnees, weatherParams);
+            } else {
+                // Si pas de données météo, sauvegarder normalement
+                google.script.run
+                    .withSuccessHandler(function(result) {
+                        // Terminer l'animation de chargement
+                        clearInterval(loadingInterval);
+                        cacherChargement();
+                        
+                        if (result.success) {
+                            afficherMessage(result.message, 'success');
+                            
+                            // Si on a des résultats, les afficher
+                            if (result.resultats) {
+                                console.log('Résultats détaillés reçus:', result.resultats);
+                                console.log('Pourcentages dans résultats:', {
+                                    total_percent_cooling: result.resultats.total_percent_cooling,
+                                    total_percent_cspt: result.resultats.total_percent_cspt
+                                });
+                                afficherResultats(result.resultats);
+                            } else {
+                                console.log('Aucun résultat dans la réponse');
+                            }
+                            
+                            // Log pour debug
+                            console.log('Data saved successfully:', result);
+                        } else {
+                            afficherMessage(result.message, 'error');
+                            console.log('Erreur de sauvegarde:', result);
+                        }
+                    })
+                    .withFailureHandler(function(error) {
+                        // Finish loading animation in case of error
+                        clearInterval(loadingInterval);
+                        cacherChargement();
+                        
+                        afficherMessage('Save error: ' + error, 'error');
+                        console.error('Detailed error:', error);
+                    })
+                    .sauvegarderDonnees(donnees);
+            }
+        }
+
+        // Fonction pour collecter les données du formulaire
+        function collecterDonnees() {
+            console.log('collecterDonnees appelée !');
+            // Fonction pour convertir format YYYY-MM en MM-YYYY pour la sauvegarde
+            function convertirFormatDate(dateStr) {
+                if (!dateStr) return '';
+                
+                // Format YYYY-MM (from input type="month")
+                if (/^\d{4}-\d{2}$/.test(dateStr)) {
+                    const [annee, mois] = dateStr.split('-');
+                    return `${mois}-${annee}`;
+                }
+                
+                // Si déjà au format MM-YYYY ou autre, retourner tel quel
+                return dateStr;
+            }
+            
+            // Fonction pour collecter les données d'énergie (toujours 12 mois)
+            function collecterDonneesEnergie() {
+                const donneesEnergie = {};
+                
+                // Récupérer toutes les dates et valeurs d'énergie sauvegardées actuellement
+                const savedDates = {};
+                const savedElectricity = {};
+                
+                // Pour récupérer les valeurs enregistrées dans les attributs data
+                for (let i = 1; i <= 12; i++) {
+                    const idx = (i < 10) ? '0' + i : '' + i;
+                    savedDates[idx] = window[`savedDate_${idx}`] || '';
+                    savedElectricity[idx] = window[`savedElectricity_${idx}`] || '';
+                }
+                
+                // Pour tous les 12 mois
+                for (let i = 1; i <= 12; i++) {
+                    const idx = (i < 10) ? '0' + i : '' + i;
+                    const dateId = 'date_' + idx;
+                    const electricityId = 'electricity_' + idx;
+                    
+                    const dateElement = document.getElementById(dateId);
+                    const electricityElement = document.getElementById(electricityId);
+                    
+                    // Récupérer la date pour tous les mois
+                    if (dateElement) {
+                        // Si l'élément existe, on prend sa valeur
+                        donneesEnergie['date_' + idx] = convertirFormatDate(dateElement.value);
+                        // Et on la sauvegarde pour une utilisation ultérieure
+                        window[`savedDate_${idx}`] = convertirFormatDate(dateElement.value);
+                    } else {
+                        // Si l'élément n'existe pas, on prend la valeur sauvegardée
+                        donneesEnergie['date_' + idx] = savedDates[idx] || '';
+                    }
+                    
+                    // Pour l'électricité, toujours prendre la valeur saisie
+                    if (electricityElement) {
+                        donneesEnergie['electricity_' + idx] = electricityElement.value;
+                        // Et on la sauvegarde pour une utilisation ultérieure
+                        window[`savedElectricity_${idx}`] = electricityElement.value;
+                    } else {
+                        // Si pas d'élément, mettre 0
+                        donneesEnergie['electricity_' + idx] = '0';
+                    }
+                }
+                
+                return donneesEnergie;
+            }
+            
+            return {
+                modeCalcul: document.getElementById('modeCalcul').value,
+                nomProjet: document.getElementById('nomProjet').value,
+                // Paramètres de bâtiment et base
+                typeBatiment: document.getElementById('typeBatiment').value,
+                hemisphere: document.getElementById('hemisphere').value,
+                cddBase: document.getElementById('cddBase').value,
+                // Paramètres de nuit
+                nightReduction: document.getElementById('nightReduction').checked,
+                startTimeWeekday: document.getElementById('startTimeWeekday').value,
+                endTimeWeekday: document.getElementById('endTimeWeekday').value,
+                startTimeFriday: document.getElementById('startTimeFriday').value,
+                endTimeFriday: document.getElementById('endTimeFriday').value,
+                startTimeWeekend: document.getElementById('startTimeWeekend').value,
+                endTimeWeekend: document.getElementById('endTimeWeekend').value,
+                nightDeltaT: parseInt(document.getElementById('nightDeltaT').value) || 8,
+                // Energy data - always 12 months processing
+                ...collecterDonneesEnergie(),
+                // Present Delta T
+                presentDeltaT: parseInt(document.getElementById('presentDeltaT').value) || 7,
+                
+                // Weather parameters
+                includeWeatherData: document.getElementById('includeWeatherData').checked,
+                latitude: document.getElementById('latitude') ? document.getElementById('latitude').value : '',
+                longitude: document.getElementById('longitude') ? document.getElementById('longitude').value : '',
+                locationAddress: document.getElementById('locationAddress') ? document.getElementById('locationAddress').value : '',
+                locationName: document.getElementById('locationName') ? document.getElementById('locationName').value : '',
+                geocode: document.getElementById('geocode') ? document.getElementById('geocode').value : '',
+                weatherStartDate: document.getElementById('weatherStartDate') ? document.getElementById('weatherStartDate').value : '',
+                weatherEndDate: document.getElementById('weatherEndDate') ? document.getElementById('weatherEndDate').value : '',
+                
+                // Equipment data
+                // CHILLERS
+                chillers_units: document.getElementById('chillers_units').value,
+                chillers_load: document.getElementById('chillers_load').value,
+                chillers_min_load: document.getElementById('chillers_min_load').value,
+                chillers_cop: document.getElementById('chillers_cop').value,
+                // PRIM PUMPS
+                prim_pumps_units: document.getElementById('prim_pumps_units').value,
+                prim_pumps_flow: document.getElementById('prim_pumps_flow').value,
+                prim_pumps_n_flow: document.getElementById('prim_pumps_n_flow').value,
+                prim_pumps_n_load: document.getElementById('prim_pumps_n_load').value,
+                // SEC PUMPS
+                sec_pumps_units: document.getElementById('sec_pumps_units').value,
+                sec_pumps_flow: document.getElementById('sec_pumps_flow').value,
+                sec_pumps_n_flow: document.getElementById('sec_pumps_n_flow').value,
+                sec_pumps_n_load: document.getElementById('sec_pumps_n_load').value,
+                // CL TOWERS
+                cl_towers_units: document.getElementById('cl_towers_units').value,
+                cl_towers_flow: document.getElementById('cl_towers_flow').value
+            };
+        }
+
+        // Fonction pour afficher l'estimation
+        function afficherEstimation(couts) {
+            document.getElementById('coutMensuel').textContent = couts.coutMensuel + ' €';
+            document.getElementById('coutSetup').textContent = couts.coutSetup + ' €';
+            document.getElementById('coutTotal').textContent = couts.coutTotal + ' €';
+            document.getElementById('estimationSection').style.display = 'block';
+            
+            // Afficher les informations météo si disponibles
+            if (couts.weatherInfo && couts.weatherImpact) {
+                displayWeatherData(couts.weatherInfo);
+            }
+            
+            afficherMessage('Estimate calculated successfully!', 'success');
+        }
+
+        // Fonction pour afficher les notifications 
+        function showNotification(message, type = 'info', duration = 4000) {
+            // Créer l'élément de notification s'il n'existe pas
+            let notificationContainer = document.getElementById('notificationContainer');
+            if (!notificationContainer) {
+                notificationContainer = document.createElement('div');
+                notificationContainer.id = 'notificationContainer';
+                notificationContainer.style.cssText = `
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    z-index: 10000;
+                    max-width: 400px;
+                `;
+                document.body.appendChild(notificationContainer);
+            }
+
+            // Créer la notification
+            const notification = document.createElement('div');
+            notification.className = `notification notification-${type}`;
+            
+            // Styles basés sur le type
+            const styles = {
+                'success': { bg: '#dcfce7', border: '#10b981', text: '#065f46' },
+                'error': { bg: '#fef2f2', border: '#ef4444', text: '#991b1b' },
+                'info': { bg: '#dbeafe', border: '#3b82f6', text: '#1e40af' },
+                'warning': { bg: '#fef3c7', border: '#f59e0b', text: '#92400e' }
+            };
+            
+            const style = styles[type] || styles.info;
+            
+            notification.style.cssText = `
+                background: ${style.bg};
+                border-left: 4px solid ${style.border};
+                color: ${style.text};
+                padding: 12px 16px;
+                margin-bottom: 10px;
+                border-radius: 6px;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+                font-size: 14px;
+                font-weight: 500;
+                line-height: 1.4;
+                opacity: 0;
+                transform: translateX(100%);
+                transition: all 0.3s ease;
+                cursor: pointer;
+            `;
+            
+            notification.innerHTML = message;
+            
+            // Ajouter la notification
+            notificationContainer.appendChild(notification);
+            
+            // Animation d'entrée
+            setTimeout(() => {
+                notification.style.opacity = '1';
+                notification.style.transform = 'translateX(0)';
+            }, 10);
+            
+            // Fermeture au clic
+            notification.addEventListener('click', () => {
+                notification.style.opacity = '0';
+                notification.style.transform = 'translateX(100%)';
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        notification.parentNode.removeChild(notification);
+                    }
+                }, 300);
+            });
+            
+            // Auto-fermeture
+            if (duration > 0) {
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        notification.style.opacity = '0';
+                        notification.style.transform = 'translateX(100%)';
+                        setTimeout(() => {
+                            if (notification.parentNode) {
+                                notification.parentNode.removeChild(notification);
+                            }
+                        }, 300);
+                    }
+                }, duration);
+            }
+        }
+
+    </script>
+</body>
+</html>
